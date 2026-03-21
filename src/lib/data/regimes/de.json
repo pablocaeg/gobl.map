@@ -1,0 +1,185 @@
+{
+  "$schema": "https://gobl.org/draft-0/tax/regime-def",
+  "name": {
+    "de": "Deutschland",
+    "en": "Germany"
+  },
+  "description": {
+    "en": "Germany's tax system is administered by the Federal Central Tax Office\n(Bundeszentralamt für Steuern, BZSt). As an EU member state, Germany follows\nthe EU VAT Directive with locally adapted rates.\n\nVAT (Umsatzsteuer, USt) applies at standard and reduced rates. The reduced\nrate covers food, books, newspapers, public transport, and cultural events.\n\nBusinesses are identified by their Umsatzsteuer-Identifikationsnummer (USt-IdNr)\nin the format DE followed by 9 digits for cross-border transactions, and by\ntheir Steuernummer (tax number) in regional formats for domestic purposes.\n\nGermany supports credit notes for invoice corrections. E-invoicing is\nprogressively becoming mandatory, with XRechnung as the standard for B2G\ntransactions and ZUGFeRD/Factur-X widely used for B2B."
+  },
+  "time_zone": "Europe/Berlin",
+  "country": "DE",
+  "currency": "EUR",
+  "tax_scheme": "VAT",
+  "identities": [
+    {
+      "key": "de-tax-number",
+      "name": {
+        "de": "Steuernummer",
+        "en": "Tax Number"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "schema": "bill/invoice",
+      "list": [
+        {
+          "tags": [
+            "reverse-charge"
+          ],
+          "note": {
+            "key": "legal",
+            "src": "reverse-charge",
+            "text": "Reverse Charge / Umkehr der Steuerschuld."
+          }
+        }
+      ]
+    }
+  ],
+  "corrections": [
+    {
+      "schema": "bill/invoice",
+      "types": [
+        "credit-note"
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "code": "VAT",
+      "name": {
+        "de": "USt",
+        "en": "VAT"
+      },
+      "title": {
+        "de": "Mehrwertsteuer",
+        "en": "Value Added Tax"
+      },
+      "keys": [
+        {
+          "key": "standard",
+          "name": {
+            "en": "Standard"
+          }
+        },
+        {
+          "key": "zero",
+          "name": {
+            "en": "Zero"
+          }
+        },
+        {
+          "key": "reverse-charge",
+          "name": {
+            "en": "Reverse charge"
+          },
+          "no_percent": true
+        },
+        {
+          "key": "exempt",
+          "name": {
+            "en": "Exempt"
+          },
+          "no_percent": true
+        },
+        {
+          "key": "export",
+          "name": {
+            "en": "Export"
+          },
+          "no_percent": true
+        },
+        {
+          "key": "intra-community",
+          "name": {
+            "en": "Intra-community"
+          },
+          "no_percent": true
+        },
+        {
+          "key": "outside-scope",
+          "name": {
+            "en": "Outside scope"
+          },
+          "no_percent": true
+        }
+      ],
+      "rates": [
+        {
+          "rate": "general",
+          "keys": [
+            "standard"
+          ],
+          "name": {
+            "de": "Allgemeiner Steuersatz",
+            "en": "General rate"
+          },
+          "desc": {
+            "de": "Für den Großteil der Verkäufe von Waren und Dienstleistungen gilt: Dies gilt für alle Produkte oder Dienstleistungen, für die ausdrücklich kein anderer Satz festgelegt ist.",
+            "en": "For the majority of sales of goods and services: it applies to all products or services for which no other rate is expressly provided."
+          },
+          "values": [
+            {
+              "since": "2022-01-01",
+              "percent": "19%"
+            },
+            {
+              "since": "2020-07-01",
+              "percent": "16%"
+            },
+            {
+              "since": "2007-07-01",
+              "percent": "19%"
+            },
+            {
+              "since": "1993-01-01",
+              "percent": "16%"
+            }
+          ]
+        },
+        {
+          "rate": "reduced",
+          "keys": [
+            "standard"
+          ],
+          "name": {
+            "de": "Verminderter Steuersatz",
+            "en": "Reduced rate"
+          },
+          "desc": {
+            "de": "Insbesondere anwendbar auf Grundnahrungsmittel, Bücher und Zeitschriften, kulturelle Veranstaltungen, Hotelunterkünfte, öffentliche Verkehrsmittel, medizinische Produkte oder Hausrenovierung.",
+            "en": "Applicable in particular to basic foodstuffs, books and magazines, cultural events, hotel accommodations, public transportation, medical products, or home renovation."
+          },
+          "values": [
+            {
+              "since": "2022-01-01",
+              "percent": "7%"
+            },
+            {
+              "since": "2020-07-01",
+              "percent": "5%"
+            },
+            {
+              "since": "2007-07-01",
+              "percent": "7%"
+            },
+            {
+              "since": "1993-01-01",
+              "percent": "5%"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": {
+            "de": "Umsatzsteuer/Güter - und Dienstleistungssteuer (USt/GST) (1976-2023)",
+            "en": "Value Added Tax/Goods and Services Tax (VAT/GST) (1976-2023)"
+          },
+          "url": "https://www.oecd.org/tax/tax-policy/tax-database/"
+        }
+      ]
+    }
+  ]
+}

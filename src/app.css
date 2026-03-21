@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+
+@theme {
+	/* GOBL brand colors from gobl.org */
+	--color-navy: #080820;
+	--color-navy-light: #141432;
+	--color-navy-mid: #1a1a3e;
+	--color-navy-surface: #1e1e42;
+	--color-blue: #6EC5EE;
+	--color-blue-dim: #5BA8CC;
+	--color-blue-glow: #6EC5EE33;
+	--color-paleblue: #94B2CD;
+	--color-grey: #E6E6E9;
+	--color-grey-dim: #9999A8;
+	--color-grey-dark: #4a4a5e;
+	--font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+html, body {
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Smooth scrollbar for detail panel — dark theme */
+.panel-scroll::-webkit-scrollbar {
+	width: 5px;
+}
+.panel-scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+.panel-scroll::-webkit-scrollbar-thumb {
+	background: #2a2a50;
+	border-radius: 3px;
+}
+.panel-scroll::-webkit-scrollbar-thumb:hover {
+	background: #3a3a60;
+}

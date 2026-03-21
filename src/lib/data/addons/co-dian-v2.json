@@ -1,0 +1,311 @@
+{
+  "$schema": "https://gobl.org/draft-0/tax/addon-def",
+  "key": "co-dian-v2",
+  "name": {
+    "en": "Colombia DIAN UBL 2.X"
+  },
+  "description": {
+    "en": "Extensions to support the Colombian DIAN (Dirección de Impuestos y Aduanas Nacionales)\nspecifications for electronic invoicing based on UBL 2.1."
+  },
+  "extensions": [
+    {
+      "key": "co-dian-municipality",
+      "name": {
+        "en": "DIAN Municipality Code",
+        "es": "Código de municipio DIAN"
+      },
+      "desc": {
+        "en": "The municipality code as defined by the DIAN.\n\nSet the 5-digit code for the municipality where the issuer is located in both\nthe supplier and customer:\n\n```js\n\"supplier\": {\n\t\"name\": \"EXAMPLE SUPPLIER S.A.S.\",\n\t\"tax_id\": {\n\t\t\"country\": \"CO\",\n\t\t\"code\": \"9014514812\"\n\t},\n\t\"ext\": {\n\t\t\"co-dian-municipality\": \"11001\" // Bogotá, D.C.\n\t},\n\t// [...]\n},\n\"customer\": {\n\t\"name\": \"EXAMPLE CUSTOMER S.A.S.\",\n\t\"tax_id\": {\n\t\t\"country\": \"CO\",\n\t\t\"code\": \"9014514805\"\n\t},\n\t\"ext\": {\n\t\t\"co-dian-municipality\": \"05001\" // Medellín\n\t},\n\t// [...]\n},\n```"
+      },
+      "sources": [
+        {
+          "title": {
+            "en": "DIAN Municipality Codes"
+          },
+          "url": "https://www.dian.gov.co/atencionciudadano/formulariosinstructivos/Formularios/2007/Codigos_municipios_2007.pdf",
+          "content_type": "application/pdf"
+        },
+        {
+          "title": {
+            "en": "Municipalities of Colombia - Github"
+          },
+          "url": "https://github.com/ALAxHxC/MunicipiosDane"
+        }
+      ],
+      "pattern": "^\\d{5}$"
+    },
+    {
+      "key": "co-dian-credit-code",
+      "name": {
+        "en": "Credit Code",
+        "es": "Código de Crédito"
+      },
+      "desc": {
+        "en": "The DIAN correction code is required when issuing credit notes in Colombia\nand is not automatically assigned by GOBL. It must be be included inside the\n`preceding` document references.\n\nThe extension will be offered as an option in the invoice correction process.\n\nUsage example:\n\n```js\n\"preceding\": [\n\t{\n\t\t\"uuid\": \"0190e063-7676-7000-8c58-2db7172a4e58\",\n\t\t\"type\": \"standard\",\n\t\t\"series\": \"SETT\",\n\t\t\"code\": \"1010006\",\n\t\t\"issue_date\": \"2024-07-23\",\n\t\t\"reason\": \"Reason\",\n\t\t\"stamps\": [\n\t\t\t{\n\t\t\t\t\"prv\": \"dian-cude\",\n\t\t\t\t\"val\": \"57601dd1ab69213ccf8cfd5894f2e9fbfe23643f3a24e2f2526a5bb88d058a0842fffcb339694b6704dc105a9d813327\"\n\t\t\t}\n\t\t],\n\t\t\"ext\": {\n\t\t\t\"co-dian-credit-code\": \"3\"\n\t\t}\n\t}\n],\n```"
+      },
+      "values": [
+        {
+          "code": "1",
+          "name": {
+            "en": "Partial refund",
+            "es": "Devolución parcial"
+          },
+          "desc": {
+            "en": "Partial refund of part of the goods or services.",
+            "es": "Devolución de parte de los bienes; no aceptación de partes del servicio."
+          }
+        },
+        {
+          "code": "2",
+          "name": {
+            "en": "Revoked",
+            "es": "Anulación"
+          },
+          "desc": {
+            "en": "Previous document has been completely cancelled.",
+            "es": "Anulación de la factura anterior."
+          }
+        },
+        {
+          "code": "3",
+          "name": {
+            "en": "Discount",
+            "es": "Descuento"
+          },
+          "desc": {
+            "en": "Partial or total discount.",
+            "es": "Rebaja o descuento parcial o total."
+          }
+        },
+        {
+          "code": "4",
+          "name": {
+            "en": "Adjustment",
+            "es": "Ajuste"
+          },
+          "desc": {
+            "en": "Price adjustment.",
+            "es": "Ajuste de precio."
+          }
+        },
+        {
+          "code": "5",
+          "name": {
+            "en": "Other",
+            "es": "Otros"
+          }
+        }
+      ]
+    },
+    {
+      "key": "co-dian-debit-code",
+      "name": {
+        "en": "Debit Code",
+        "es": "Código de Débito"
+      },
+      "desc": {
+        "en": "The DIAN correction code is required when issuing debit notes in Colombia\nand is not automatically assigned by GOBL.\n\nThe extension will be offered as an option in the invoice correction process."
+      },
+      "values": [
+        {
+          "code": "1",
+          "name": {
+            "en": "Interest",
+            "es": "Intereses"
+          }
+        },
+        {
+          "code": "2",
+          "name": {
+            "en": "Pending charges",
+            "es": "Gastos por cobrar"
+          }
+        },
+        {
+          "code": "3",
+          "name": {
+            "en": "Change in value",
+            "es": "Cambio del valor"
+          }
+        },
+        {
+          "code": "4",
+          "name": {
+            "en": "Other",
+            "es": "Otros"
+          }
+        }
+      ]
+    },
+    {
+      "key": "co-dian-fiscal-responsibility",
+      "name": {
+        "en": "Fiscal Responsibility Code",
+        "es": "Código de Responsabilidad Fiscal"
+      },
+      "desc": {
+        "en": "The fiscal responsibility code as defined by the DIAN for Colombian electronic invoicing.\nMaps to the UBL's `TaxLevelCode` field.\n\nThe DIAN requires that Colombian invoices specify the fiscal responsibilities of the\nsupplier or customer using specific codes. If no value is provided, GOBL will\nautomatically set `R-99-PN` as the default.\n\n| Code    | Description                   |\n| ------- | ----------------------------- |\n| O-13    | Gran contribuyente            |\n| O-15    | Autorretenedor                |\n| O-23    | Agente de retención IVA       |\n| O-47    | Régimen simple de tributación |\n| R-99-PN | No aplica - Otros             |\n\nFor example:\n\n```js\n\"customer\": {\n\t\"name\": \"EXAMPLE CUSTOMER S.A.S.\",\n\t\"tax_id\": {\n\t\t\"country\": \"CO\",\n\t\t\"code\": \"9014514812\"\n\t},\n\t\"ext\": {\n\t\t\"co-dian-fiscal-responsibility\": \"O-13\"\n\t}\n}\n```"
+      },
+      "sources": [
+        {
+          "title": {
+            "en": "DIAN Fiscal Responsibility Codes, see Anexo Tecnico/Tablas Referenciadas, table 13.2.6.1"
+          },
+          "url": "https://www.dian.gov.co/impuestos/factura-electronica/Documents/Caja-de-herramientas-FE-V1-9.zip",
+          "content_type": "application/zip"
+        }
+      ],
+      "values": [
+        {
+          "code": "O-13",
+          "name": {
+            "en": "Major taxpayer",
+            "es": "Gran contribuyente"
+          }
+        },
+        {
+          "code": "O-15",
+          "name": {
+            "en": "Self-withholder",
+            "es": "Autorretenedor"
+          }
+        },
+        {
+          "code": "O-23",
+          "name": {
+            "en": "VAT withholding agent",
+            "es": "Agente de retención IVA"
+          }
+        },
+        {
+          "code": "O-47",
+          "name": {
+            "en": "Simple tax regime",
+            "es": "Régimen simple de tributación"
+          }
+        },
+        {
+          "code": "R-99-PN",
+          "name": {
+            "en": "Not applicable – Others",
+            "es": "No aplica – Otros"
+          },
+          "desc": {
+            "en": "Used when the issuer/acquirer does not have any of the first 4 responsibilities. Applies to legal entities, individuals, or final consumers.",
+            "es": "Se utiliza cuando el emisor/adquiriente no cuenta con las primeras 4 responsabilidades. Aplica para personas jurídicas, personas naturales o consumidor final."
+          }
+        }
+      ]
+    }
+  ],
+  "scenarios": null,
+  "identities": [
+    {
+      "key": "co-civil-register",
+      "name": {
+        "en": "Civil Registry",
+        "es": "Registro Civil"
+      },
+      "map": {
+        "dian-company-id": "11"
+      }
+    },
+    {
+      "key": "co-id-card",
+      "name": {
+        "en": "Identity Card",
+        "es": "Tarjeta de Identidad"
+      },
+      "map": {
+        "dian-company-id": "12"
+      }
+    },
+    {
+      "key": "co-citizen-id",
+      "name": {
+        "en": "Citizen Identity Card",
+        "es": "Cédula de ciudadanía"
+      },
+      "map": {
+        "dian-company-id": "13"
+      }
+    },
+    {
+      "key": "co-foreigner-id-card",
+      "name": {
+        "en": "Foreigner Identity Card",
+        "es": "Tarjeta de Extranjería"
+      },
+      "map": {
+        "dian-company-id": "21"
+      }
+    },
+    {
+      "key": "co-foreigner-id",
+      "name": {
+        "en": "Foreigner Citizen Identity",
+        "es": "Cédula de extranjería"
+      },
+      "map": {
+        "dian-company-id": "22"
+      }
+    },
+    {
+      "key": "co-passport",
+      "name": {
+        "en": "Passport",
+        "es": "Pasaporte"
+      },
+      "map": {
+        "dian-company-id": "41"
+      }
+    },
+    {
+      "key": "co-foreign-id",
+      "name": {
+        "en": "Foreign Document",
+        "es": "Documento de identificación extranjero"
+      },
+      "map": {
+        "dian-company-id": "42"
+      }
+    },
+    {
+      "key": "co-pep",
+      "name": {
+        "en": "PEP - Special Permit to Stay",
+        "es": "PEP - Permiso Especial de Permanencia"
+      },
+      "map": {
+        "dian-company-id": "47"
+      }
+    },
+    {
+      "key": "co-nuip",
+      "name": {
+        "en": "NUIP - National Unique Personal Identification Number",
+        "es": "NUIP - Número Único de Identificación Personal"
+      },
+      "map": {
+        "dian-company-id": "91"
+      }
+    }
+  ],
+  "corrections": [
+    {
+      "schema": "bill/invoice",
+      "types": [
+        "credit-note",
+        "debit-note"
+      ],
+      "extensions": [
+        "co-dian-credit-code",
+        "co-dian-debit-code"
+      ],
+      "reason_required": true,
+      "stamps": [
+        "dian-cude"
+      ]
+    }
+  ]
+}
