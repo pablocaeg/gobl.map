@@ -33,6 +33,8 @@ jobs:
 
       - run: npm ci
       - run: npm run build
+        env:
+          BASE_PATH: '/gobl.map'
 
       - uses: actions/upload-pages-artifact@v3
         with:

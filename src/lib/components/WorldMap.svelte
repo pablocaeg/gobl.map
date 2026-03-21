@@ -10,6 +10,7 @@
   import { countryRegion, regionColors } from '$lib/data/regions'
   import { locName, countryFlag } from '$lib/utils/format'
   import type { CountryData } from '$lib/utils/data-loader'
+  import { base } from '$app/paths'
 
   let svgEl: SVGSVGElement
   let gEl: SVGGElement
@@ -42,7 +43,7 @@
   const graticule = geoGraticule().step([20, 20])
 
   onMount(async () => {
-    const res = await fetch('/world-110m.json')
+    const res = await fetch(`${base}/world-110m.json`)
     const world = await res.json()
     const countries = topojson.feature(
       world,

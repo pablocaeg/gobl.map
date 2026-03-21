@@ -4,6 +4,7 @@
   import { regimeData } from '$lib/stores/regimes'
   import { loadRegimes } from '$lib/utils/data-loader'
   import { restoreFromHash } from '$lib/stores/selection'
+  import { base } from '$app/paths'
 
   let { children } = $props()
 
@@ -28,7 +29,7 @@
         rel="noopener noreferrer"
         class="flex items-center"
       >
-        <img src="/logo.svg" alt="GOBL" class="h-10 md:h-12 w-auto" />
+        <img src="{base}/logo.svg" alt="GOBL" class="h-10 md:h-12 w-auto" />
       </a>
       <div class="hidden sm:flex items-center">
         <span class="text-paleblue text-sm tracking-wide">Tax Regime Map</span>
