@@ -2,85 +2,40 @@
 
 # gobl.map
 
-**GOBL Map** is an interactive world map showing [GOBL](https://gobl.org) tax regime coverage. Explore supported countries, their tax categories, rates, addons, identity types, and more.
+Visual overview of [GOBL](https://gobl.org)'s tax regime coverage. See which countries are supported, explore their tax categories, rates, addons, and compare regimes side by side.
 
-A standalone demo is available at the deployed site (see Deployment below).
+Data is pulled directly from the GOBL repo's `data/regimes/` and `data/addons/` directories.
 
-## Features
+## What's in here
 
-- **Interactive World Map** — D3.js SVG map with Natural Earth projection, hover tooltips, click-to-explore details, zoom and pan.
-- **Table View** — Sortable grid of all regimes by name, standard rate, currency, categories, and addon count.
-- **Format Coverage Matrix** — Grid showing which conversion formats (UBL, CII, FacturaE, FatturaPA, CFDI, etc.) are available per country.
-- **Detail Panel** — Tax categories with current and historical rates, addons, identity types, correction methods, and links to official sources.
-- **Comparison Mode** — Side-by-side comparison of two countries' tax rates, addons, and general info.
-- **Code Examples** — Minimal GOBL invoice JSON snippet per country, ready to copy.
-- **Search** — Find countries by name or code.
-- **Shareable URLs** — Hash-based routing (`#es`, `#de`) for direct linking to a country.
-
-## Data
-
-Regime and addon data is sourced from the [GOBL repository](https://github.com/invopop/gobl) (`data/regimes/` and `data/addons/`). A GitHub Action syncs fresh data weekly and on every push.
+- World map (D3.js) with country details on click
+- Sortable table of all regimes
+- Format coverage matrix (UBL, CII, FacturaE, CFDI, etc.)
+- Side-by-side regime comparison
+- Minimal GOBL invoice code examples per country
+- Historical rate changes
+- Search, hash-based URLs for sharing (`#es`, `#de`)
 
 ## Development
 
-### Installation
-
-Clone this repository from GitHub, then run from within its directory:
-
 ```sh
 npm install
-```
-
-### Sync data
-
-Sync the latest regime and addon JSON data from a local clone of the GOBL repo (expected at `../gobl`):
-
-```sh
-npm run sync-data
-```
-
-### Run in watch mode
-
-```sh
+npm run sync-data   # copies regime/addon JSONs from ../gobl
 npm run dev
 ```
 
-This uses `vite` to run a development web server with HMR on http://localhost:5173.
-
-### Build
+## Build & deploy
 
 ```sh
 npm run build
 ```
 
-This uses `vite` to build and write an optimized production build to the `build` directory.
+A GitHub Action (`.github/workflows/sync-and-deploy.yml`) syncs the latest data from `invopop/gobl` weekly and deploys to GitHub Pages. To set it up: **Settings → Pages → Source → GitHub Actions**.
 
-### Preview production build
+## Stack
 
-```sh
-npm run preview
-```
-
-## Deployment
-
-The included GitHub Action (`.github/workflows/sync-and-deploy.yml`) handles:
-
-1. Fetching latest regime/addon data from `invopop/gobl`
-2. Building the static site
-3. Deploying to GitHub Pages
-
-To activate: go to **Settings → Pages → Source → GitHub Actions**.
-
-For a custom domain, set `BASE_PATH=""` in the workflow environment.
-
-## Tech Stack
-
-- [SvelteKit](https://kit.svelte.dev/) with static adapter
-- [D3.js](https://d3js.org/) (d3-geo, d3-zoom)
-- [Tailwind CSS](https://tailwindcss.com/) v4
-- [TopoJSON](https://github.com/topojson/topojson) world atlas
-- TypeScript
+SvelteKit, D3.js, Tailwind CSS v4, TypeScript. Follows the same patterns as [gobl.builder](https://github.com/invopop/gobl.builder).
 
 ## License
 
-GOBL Map is licensed under the [Apache-2.0 License](LICENSE).
+[Apache-2.0](LICENSE)
