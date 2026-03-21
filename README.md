@@ -4,17 +4,19 @@
 
 Visual overview of [GOBL](https://gobl.org)'s tax regime coverage. See which countries are supported, explore their tax categories, rates, addons, and compare regimes side by side.
 
-Data is pulled directly from the GOBL repo's `data/regimes/` and `data/addons/` directories.
+**[Live demo →](https://pablocaeg.github.io/gobl.map/)**
 
-## What's in here
+Data comes from the GOBL repo's `data/regimes/` and `data/addons/` directories and is synced weekly via GitHub Actions.
 
-- World map (D3.js) with country details on click
-- Sortable table of all regimes
-- Format coverage matrix (UBL, CII, FacturaE, CFDI, etc.)
-- Side-by-side regime comparison
-- Minimal GOBL invoice code examples per country
-- Historical rate changes
-- Search, hash-based URLs for sharing (`#es`, `#de`)
+## Features
+
+- **Map** — interactive world map with country details on click, zoom and pan
+- **Table** — sortable list of all regimes with standard rates, currencies, addon counts
+- **Formats** — coverage matrix for conversion formats (UBL, CII, FacturaE, CFDI, etc.)
+- **Compare** — pick two countries and see their tax rates and addons side by side
+- **Detail panel** — tax categories, current and historical rates, identities, corrections, source links
+- **Code examples** — minimal GOBL invoice JSON per country, ready to copy
+- **Search & sharing** — find countries by name, share via URL hash (`#es`, `#de`)
 
 ## Development
 
@@ -30,7 +32,9 @@ npm run dev
 npm run build
 ```
 
-A GitHub Action (`.github/workflows/sync-and-deploy.yml`) syncs the latest data from `invopop/gobl` weekly and deploys to GitHub Pages. To set it up: **Settings → Pages → Source → GitHub Actions**.
+The GitHub Action syncs the latest data from `invopop/gobl` weekly and deploys to GitHub Pages. To set it up: **Settings → Pages → Source → GitHub Actions**.
+
+Also includes a `netlify.toml` for Netlify deployment.
 
 ## Stack
 
