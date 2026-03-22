@@ -1,0 +1,14 @@
+{
+  "code": "PL",
+  "name": "Poland",
+  "b2g": "mandatory",
+  "b2b": "upcoming",
+  "b2c": "not-required",
+  "format": "FA-VAT",
+  "infrastructure": "KSeF",
+  "model": "Centralised",
+  "authority": "Ministerstwo Finansów",
+  "archiving": "5 years",
+  "eSignature": "Optional",
+  "notes": "KSeF B2B mandatory from February 2026."
+}

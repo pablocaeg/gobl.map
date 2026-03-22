@@ -1,0 +1,14 @@
+{
+  "code": "CL",
+  "name": "Chile",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "DTE (Local XML)",
+  "infrastructure": "SII",
+  "model": "Clearance",
+  "authority": "Servicio de Impuestos Internos (SII)",
+  "archiving": "6 years",
+  "eSignature": "Mandatory",
+  "notes": null
+}

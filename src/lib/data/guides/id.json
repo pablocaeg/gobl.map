@@ -1,0 +1,14 @@
+{
+  "code": "ID",
+  "name": "Indonesia",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "e-Faktur 3.0 (XML)",
+  "infrastructure": "e-Faktur",
+  "model": "Clearance",
+  "authority": "Direktorat Jenderal Pajak (DJP)",
+  "archiving": "10 years",
+  "eSignature": "Mandatory",
+  "notes": "All taxpayers with yearly sales above IDR 4.7B must issue e-invoices."
+}

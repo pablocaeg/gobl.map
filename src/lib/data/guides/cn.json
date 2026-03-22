@@ -1,0 +1,14 @@
+{
+  "code": "CN",
+  "name": "China",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "eFapiao",
+  "infrastructure": "Centralised",
+  "model": "Centralised",
+  "authority": "State Administration of Taxation (SAT)",
+  "archiving": null,
+  "eSignature": null,
+  "notes": null
+}

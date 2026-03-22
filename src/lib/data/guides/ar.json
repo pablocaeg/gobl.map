@@ -1,0 +1,14 @@
+{
+  "code": "AR",
+  "name": "Argentina",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "AFIP XML",
+  "infrastructure": "AFIP",
+  "model": "Clearance",
+  "authority": "Administración Federal de Ingresos Públicos (AFIP)",
+  "archiving": "10 years",
+  "eSignature": "Mandatory",
+  "notes": null
+}

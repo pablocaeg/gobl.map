@@ -1,0 +1,14 @@
+{
+  "code": "HR",
+  "name": "Croatia",
+  "b2g": "mandatory",
+  "b2b": "planned",
+  "b2c": "upcoming",
+  "format": "UBL, Peppol BIS",
+  "infrastructure": "Peppol, FINA e-Račun",
+  "model": "Centralised",
+  "authority": "Ministry of Finance - Tax Administration",
+  "archiving": "11 years",
+  "eSignature": "Optional",
+  "notes": "B2B planned, B2C upcoming."
+}

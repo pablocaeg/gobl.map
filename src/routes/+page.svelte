@@ -4,6 +4,12 @@
   import FormatMatrix from '$lib/components/FormatMatrix.svelte'
   import DetailPanel from '$lib/components/DetailPanel.svelte'
   import CompareView from '$lib/components/CompareView.svelte'
+  import GuidePanel from '$lib/components/GuidePanel.svelte'
+  import { selectedGuide } from '$lib/stores/selection'
+  import type { GuideInfo } from '$lib/data/compliance'
+
+  let guide = $state<GuideInfo | null>(null)
+  selectedGuide.subscribe((v) => (guide = v))
   import StatsBar from '$lib/components/StatsBar.svelte'
   import SearchBar from '$lib/components/SearchBar.svelte'
   import Legend from '$lib/components/Legend.svelte'
@@ -44,5 +50,8 @@
     </div>
   {/if}
   <DetailPanel />
+  {#if guide}
+    <GuidePanel {guide} onclose={() => selectedGuide.set(null)} />
+  {/if}
   <CompareView />
 </main>

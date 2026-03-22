@@ -1,0 +1,14 @@
+{
+  "code": "PT",
+  "name": "Portugal",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "SAF-T",
+  "infrastructure": "AT Portal",
+  "model": "RTIR",
+  "authority": "Autoridade Tributária e Aduaneira (AT)",
+  "archiving": "10 years",
+  "eSignature": "Optional",
+  "notes": null
+}

@@ -1,0 +1,14 @@
+{
+  "code": "GR",
+  "name": "Greece",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "myDATA XML",
+  "infrastructure": "myDATA",
+  "model": "RTIR",
+  "authority": "AADE",
+  "archiving": "5 years",
+  "eSignature": "Optional",
+  "notes": null
+}

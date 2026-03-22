@@ -1,0 +1,14 @@
+{
+  "code": "BG",
+  "name": "Bulgaria",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": null,
+  "infrastructure": null,
+  "model": null,
+  "authority": "National Revenue Agency (NRA)",
+  "archiving": null,
+  "eSignature": null,
+  "notes": null
+}

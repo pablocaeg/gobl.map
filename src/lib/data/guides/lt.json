@@ -1,0 +1,14 @@
+{
+  "code": "LT",
+  "name": "Lithuania",
+  "b2g": "mandatory",
+  "b2b": "planned",
+  "b2c": "not-required",
+  "format": "Peppol BIS",
+  "infrastructure": "Peppol",
+  "model": "Peppol",
+  "authority": "Valstybinė mokesčių inspekcija",
+  "archiving": "10 years",
+  "eSignature": "Optional",
+  "notes": null
+}

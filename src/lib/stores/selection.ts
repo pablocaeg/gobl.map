@@ -1,8 +1,10 @@
 import { writable, get } from 'svelte/store'
 import type { CountryData } from '$lib/utils/data-loader'
+import type { GuideInfo } from '$lib/data/compliance'
 import { regimeData } from './regimes'
 
 export const selectedCountry = writable<CountryData | null>(null)
+export const selectedGuide = writable<GuideInfo | null>(null)
 export const compareCountry = writable<CountryData | null>(null)
 export const compareMode = writable(false)
 
@@ -23,7 +25,6 @@ selectedCountry.subscribe((v) => {
   }
 })
 
-// On page load, check URL hash and select that country
 export function restoreFromHash() {
   if (typeof window === 'undefined') return
   const hash = window.location.hash.replace('#', '').toUpperCase()

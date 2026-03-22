@@ -1,0 +1,14 @@
+{
+  "code": "SA",
+  "name": "Saudi Arabia",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "UBL",
+  "infrastructure": "ZATCA",
+  "model": "Clearance",
+  "authority": "ZATCA",
+  "archiving": null,
+  "eSignature": "Required",
+  "notes": null
+}

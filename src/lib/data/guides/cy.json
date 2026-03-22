@@ -1,0 +1,14 @@
+{
+  "code": "CY",
+  "name": "Cyprus",
+  "b2g": "mandatory",
+  "b2b": "unknown",
+  "b2c": "unknown",
+  "format": null,
+  "infrastructure": null,
+  "model": null,
+  "authority": "Tax Department",
+  "archiving": null,
+  "eSignature": null,
+  "notes": null
+}

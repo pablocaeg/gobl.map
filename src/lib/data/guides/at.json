@@ -1,0 +1,14 @@
+{
+  "code": "AT",
+  "name": "Austria",
+  "b2g": "mandatory",
+  "b2b": "not-required",
+  "b2c": "not-required",
+  "format": "Peppol BIS, ebInterface",
+  "infrastructure": "Peppol",
+  "model": "Peppol",
+  "authority": "Bundesministerium für Finanzen",
+  "archiving": "7 years",
+  "eSignature": "Optional",
+  "notes": null
+}

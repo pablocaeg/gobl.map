@@ -6,15 +6,16 @@
   import 'd3-transition'
   import * as topojson from 'topojson-client'
   import { regimeData } from '$lib/stores/regimes'
-  import { selectedCountry } from '$lib/stores/selection'
+  import { selectedCountry, selectedGuide } from '$lib/stores/selection'
   import { pendingRegimes } from '$lib/stores/pending'
+  import { guidesData } from '$lib/stores/guides'
   import type { PendingRegime } from '$lib/utils/pending-regimes'
   import { numericToName, alpha2ToNumeric, numericToAlpha2 } from '$lib/data/country-codes'
   import {
-    compliance,
     getComplianceLabel,
     getComplianceColor,
-    type ComplianceInfo
+    needsInvoicing,
+    type GuideInfo
   } from '$lib/data/compliance'
   import { countryRegion, regionColors } from '$lib/data/regions'
   import { locName } from '$lib/utils/format'
@@ -45,10 +46,11 @@
     taxScheme: '',
     currency: '',
     addons: 0,
-    compliance: null as ComplianceInfo | null,
+    guide: null as GuideInfo | null,
     needsContribution: false
   })
   let dataMap = $state<Map<string, CountryData>>(new Map())
+  let guides = $state<Map<string, GuideInfo>>(new Map())
   let pending = $state<PendingRegime[]>([])
   let zoomRef: ZoomBehavior<SVGSVGElement, unknown>
 
@@ -85,6 +87,7 @@
   regimeData.subscribe((v) => (dataMap = v))
   selectedCountry.subscribe((v) => (selectedId = v ? v.numericCode : null))
   pendingRegimes.subscribe((v) => (pending = v))
+  guidesData.subscribe((v) => (guides = v))
 
   const projection = geoNaturalEarth1().scale(155).translate([480, 270])
   const pathGenerator = geoPath(projection)
@@ -133,23 +136,17 @@
     return pendingNumeric.has(id)
   }
 
-  function getCompliance(id: string): ComplianceInfo | null {
+  function getGuide(id: string): GuideInfo | null {
     const alpha = numericToAlpha2[id]
-    if (alpha) return compliance[alpha] || null
+    if (alpha) return guides.get(alpha) || null
     return null
   }
 
-  // Country needs a contribution: requires invoicing, no GOBL support, no PR open
   function needsContribution(id: string): boolean {
     if (dataMap.has(id) || isPending(id)) return false
-    const c = getCompliance(id)
-    if (!c) return false
-    return (
-      c.b2b === 'mandatory' ||
-      c.b2b === 'upcoming' ||
-      c.b2c === 'mandatory' ||
-      c.b2c === 'upcoming'
-    )
+    const g = getGuide(id)
+    if (!g) return false
+    return needsInvoicing(g)
   }
 
   function getFill(id: string): string {
@@ -187,9 +184,9 @@
     const info = getCountryInfo(id)
     const pendingInfo = getPendingInfo(id)
     const alpha = numericToAlpha2[id]
-    const comp = getCompliance(id)
+    const guide = getGuide(id)
     tooltipContent = {
-      name: pendingInfo?.countryName || getCountryName(id),
+      name: guide?.name || pendingInfo?.countryName || getCountryName(id),
       flagCode: info
         ? info.countryCode
         : pendingInfo
@@ -201,7 +198,7 @@
       taxScheme: info?.regime.tax_scheme || '',
       currency: info?.regime.currency || '',
       addons: info?.addons.length || 0,
-      compliance: comp,
+      guide,
       needsContribution: needsContribution(id)
     }
     tooltipVisible = true
@@ -244,11 +241,13 @@
   function handleClick(id: string) {
     const info = getCountryInfo(id)
     if (!info) {
-      if (needsContribution(id)) {
-        window.open('https://github.com/invopop/gobl', '_blank')
+      const guide = getGuide(id)
+      if (guide && needsContribution(id)) {
+        selectedGuide.set(guide)
       }
       return
     }
+    selectedGuide.set(null)
     selectedCountry.set(info)
 
     // Zoom to mainland
@@ -411,11 +410,11 @@
           <span class="w-1.5 h-1.5 rounded-full" style="background: #ef4444;"></span>
           <span class="text-[11px] font-medium" style="color: #ef4444;">Needs contribution</span>
         </div>
-        {#if tooltipContent.compliance}
+        {#if tooltipContent.guide}
           <div class="flex gap-3 mt-1.5 text-[10px]">
-            <span class="text-grey-dim">B2G: <span style="color: {getComplianceColor(tooltipContent.compliance.b2g)};">{getComplianceLabel(tooltipContent.compliance.b2g)}</span></span>
-            <span class="text-grey-dim">B2B: <span style="color: {getComplianceColor(tooltipContent.compliance.b2b)};">{getComplianceLabel(tooltipContent.compliance.b2b)}</span></span>
-            <span class="text-grey-dim">B2C: <span style="color: {getComplianceColor(tooltipContent.compliance.b2c)};">{getComplianceLabel(tooltipContent.compliance.b2c)}</span></span>
+            <span class="text-grey-dim">B2G: <span style="color: {getComplianceColor(tooltipContent.guide.b2g)};">{getComplianceLabel(tooltipContent.guide.b2g)}</span></span>
+            <span class="text-grey-dim">B2B: <span style="color: {getComplianceColor(tooltipContent.guide.b2b)};">{getComplianceLabel(tooltipContent.guide.b2b)}</span></span>
+            <span class="text-grey-dim">B2C: <span style="color: {getComplianceColor(tooltipContent.guide.b2c)};">{getComplianceLabel(tooltipContent.guide.b2c)}</span></span>
           </div>
           <div class="text-[10px] mt-1.5 pt-1.5" style="border-top: 1px solid #1a1a3e; color: #e87b7b;">
             Click to contribute →
@@ -426,10 +425,10 @@
           <span class="w-1.5 h-1.5 rounded-full bg-grey-dark"></span>
           <span class="text-[11px] text-grey-dim">Not yet supported</span>
         </div>
-        {#if tooltipContent.compliance}
+        {#if tooltipContent.guide}
           <div class="flex gap-3 mt-1 text-[10px]">
-            {#if tooltipContent.compliance.b2g !== 'unknown'}
-              <span class="text-grey-dark">B2G: {getComplianceLabel(tooltipContent.compliance.b2g)}</span>
+            {#if tooltipContent.guide.b2g !== 'unknown'}
+              <span class="text-grey-dark">B2G: {getComplianceLabel(tooltipContent.guide.b2g)}</span>
             {/if}
           </div>
         {/if}

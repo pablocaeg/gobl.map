@@ -1,0 +1,14 @@
+{
+  "code": "IN",
+  "name": "India",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "not-required",
+  "format": "JSON",
+  "infrastructure": "IRP",
+  "model": "Clearance",
+  "authority": "GSTN",
+  "archiving": null,
+  "eSignature": null,
+  "notes": null
+}

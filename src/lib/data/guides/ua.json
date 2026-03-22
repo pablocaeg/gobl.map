@@ -1,0 +1,14 @@
+{
+  "code": "UA",
+  "name": "Ukraine",
+  "b2g": "mandatory",
+  "b2b": "unknown",
+  "b2c": "unknown",
+  "format": null,
+  "infrastructure": null,
+  "model": null,
+  "authority": "State Tax Service of Ukraine",
+  "archiving": null,
+  "eSignature": null,
+  "notes": null
+}

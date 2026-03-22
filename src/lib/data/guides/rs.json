@@ -1,0 +1,14 @@
+{
+  "code": "RS",
+  "name": "Serbia",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "not-required",
+  "format": "Local UBL 2.1",
+  "infrastructure": "SEF",
+  "model": "Centralised",
+  "authority": "Poreska Uprava",
+  "archiving": "10 years",
+  "eSignature": "Optional",
+  "notes": null
+}

@@ -1,15 +1,18 @@
 <script lang="ts">
   import { regimeData } from '$lib/stores/regimes'
   import { pendingRegimes } from '$lib/stores/pending'
-  import { compliance } from '$lib/data/compliance'
+  import { needsInvoicing, type GuideInfo } from '$lib/data/compliance'
+  import { guidesData } from '$lib/stores/guides'
   import { countryRegion, regionColors, type Region } from '$lib/data/regions'
   import type { CountryData } from '$lib/utils/data-loader'
   import type { PendingRegime } from '$lib/utils/pending-regimes'
 
   let dataMap = $state<Map<string, CountryData>>(new Map())
   let pending = $state<PendingRegime[]>([])
+  let guides = $state<Map<string, GuideInfo>>(new Map())
   regimeData.subscribe((v) => (dataMap = v))
   pendingRegimes.subscribe((v) => (pending = v))
+  guidesData.subscribe((v) => (guides = v))
 
   let stats = $derived.by(() => {
     const supported = dataMap.size
@@ -21,11 +24,11 @@
     )
 
     const totalCompliance = Object.keys(compliance).length
-    const needsCount = Object.entries(compliance).filter(
-      ([code, c]) =>
-        (c.b2b === 'mandatory' || c.b2b === 'upcoming' || c.b2c === 'mandatory' || c.b2c === 'upcoming') &&
-        !supportedCodes.has(code) &&
-        !pendingCodes.has(code)
+    const needsCount = [...guides.values()].filter(
+      (g) =>
+        needsInvoicing(g) &&
+        !supportedCodes.has(g.code) &&
+        !pendingCodes.has(g.code)
     ).length
 
     const addonKeys = new Set<string>()

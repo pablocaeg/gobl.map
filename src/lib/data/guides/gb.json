@@ -1,0 +1,14 @@
+{
+  "code": "GB",
+  "name": "United Kingdom",
+  "b2g": "mandatory",
+  "b2b": "not-required",
+  "b2c": "not-required",
+  "format": "Peppol BIS",
+  "infrastructure": "Peppol",
+  "model": "Peppol",
+  "authority": "HMRC",
+  "archiving": "6 years",
+  "eSignature": "Optional",
+  "notes": null
+}

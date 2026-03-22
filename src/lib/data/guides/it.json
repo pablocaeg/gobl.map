@@ -1,0 +1,14 @@
+{
+  "code": "IT",
+  "name": "Italy",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "FatturaPA XML",
+  "infrastructure": "SDI",
+  "model": "Clearance",
+  "authority": "Agenzia delle Entrate",
+  "archiving": "10 years",
+  "eSignature": "Mandatory",
+  "notes": null
+}
