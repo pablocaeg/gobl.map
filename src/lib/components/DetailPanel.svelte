@@ -1,5 +1,6 @@
 <script lang="ts">
   import { selectedCountry, compareCountry, compareMode } from '$lib/stores/selection'
+  import { get } from 'svelte/store'
   import { fly } from 'svelte/transition'
   import RegimeHeader from './RegimeHeader.svelte'
   import TaxCategories from './TaxCategories.svelte'
@@ -17,7 +18,7 @@
   }
 
   function handleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Escape') close()
+    if (e.key === 'Escape' && !get(compareMode)) close()
   }
 </script>
 
@@ -116,7 +117,7 @@
     >
       <button
         onclick={() => {
-          compareCountry.set(country)
+          compareCountry.set(null)
           compareMode.set(true)
         }}
         class="flex items-center justify-center py-2.5 px-4 rounded-md text-sm font-semibold transition-colors"
