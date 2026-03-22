@@ -28,10 +28,68 @@ export const alpha2ToNumeric: Record<string, string> = {
   US: '840'
 }
 
+// All countries that appear in compliance data or pending PRs
+const allAlpha2ToNumeric: Record<string, string> = {
+  ...alpha2ToNumeric,
+  AL: '008',
+  AU: '036',
+  AZ: '031',
+  BO: '068',
+  BG: '100',
+  CL: '152',
+  CN: '156',
+  CR: '188',
+  HR: '191',
+  CY: '196',
+  DO: '214',
+  EC: '218',
+  EG: '818',
+  SV: '222',
+  EE: '233',
+  FI: '246',
+  GE: '268',
+  GH: '288',
+  GT: '320',
+  HN: '340',
+  HU: '348',
+  IS: '352',
+  ID: '360',
+  IL: '376',
+  JP: '392',
+  KZ: '398',
+  KE: '404',
+  KR: '410',
+  LV: '428',
+  LT: '440',
+  LU: '442',
+  MY: '458',
+  MT: '470',
+  MU: '480',
+  MA: '504',
+  NZ: '554',
+  NI: '558',
+  NO: '578',
+  PA: '591',
+  PY: '600',
+  PE: '604',
+  PH: '608',
+  RO: '642',
+  SA: '682',
+  RS: '688',
+  SK: '703',
+  SI: '705',
+  ZA: '710',
+  TR: '792',
+  UA: '804',
+  UY: '858',
+  VE: '862',
+  AD: '020'
+}
+
 // Reverse: topojson numeric → alpha-2
 export const numericToAlpha2: Record<string, string> = Object.fromEntries(
-  Object.entries(alpha2ToNumeric)
-    .filter(([key]) => key !== 'EL') // Avoid duplicate — use GR for Greece
+  Object.entries(allAlpha2ToNumeric)
+    .filter(([key]) => key !== 'EL')
     .map(([k, v]) => [v, k])
 )
 
