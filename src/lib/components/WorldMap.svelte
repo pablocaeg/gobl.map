@@ -169,7 +169,7 @@
       const dy = y1 - y0
       const cx = (x0 + x1) / 2
       const cy = (y0 + y1) / 2
-      const scale = Math.min(8, 0.65 / Math.max(dx / width, dy / height))
+      const scale = Math.min(4, 0.35 / Math.max(dx / width, dy / height))
       const tx = width / 2 - scale * cx
       const ty = height / 2 - scale * cy
 
