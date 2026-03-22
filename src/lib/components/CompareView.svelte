@@ -1,20 +1,27 @@
 <script lang="ts">
-  import { selectedCountry, compareCountry, compareMode } from '$lib/stores/selection'
+  import { selectedCountry, compareMode } from '$lib/stores/selection'
   import { regimeData } from '$lib/stores/regimes'
   import { locName, countryFlag, currentRate, fmtPercent } from '$lib/utils/format'
-  import { countryRegion, regionColors } from '$lib/data/regions'
   import type { CountryData } from '$lib/utils/data-loader'
-  import type { Region } from '$lib/data/regions'
   import { fly } from 'svelte/transition'
 
-  let countryA = $state<CountryData | null>(null)
-  let countryB = $state<CountryData | null>(null)
-  let isComparing = $state(false)
+  let isOpen = $state(false)
   let dataMap = $state<Map<string, CountryData>>(new Map())
 
-  selectedCountry.subscribe((v) => (countryA = v))
-  compareCountry.subscribe((v) => (countryB = v))
-  compareMode.subscribe((v) => (isComparing = v))
+  // Local state — independent from global selection
+  let codeA = $state('')
+  let codeB = $state('')
+
+  compareMode.subscribe((v) => {
+    isOpen = v
+    if (v) {
+      // Pre-fill country A from whatever is currently selected on the map
+      const sel = selectedCountry
+      sel.subscribe((s) => {
+        if (s && !codeA) codeA = s.countryCode
+      })()
+    }
+  })
   regimeData.subscribe((v) => (dataMap = v))
 
   let allCountries = $derived(
@@ -23,27 +30,26 @@
     )
   )
 
+  let countryA = $derived.by(() => {
+    if (!codeA) return null
+    for (const [, d] of dataMap) {
+      if (d.countryCode === codeA) return d
+    }
+    return null
+  })
+
+  let countryB = $derived.by(() => {
+    if (!codeB) return null
+    for (const [, d] of dataMap) {
+      if (d.countryCode === codeB) return d
+    }
+    return null
+  })
+
   function close() {
     compareMode.set(false)
-    compareCountry.set(null)
-  }
-
-  function selectA(code: string) {
-    for (const [, d] of dataMap) {
-      if (d.countryCode === code) {
-        selectedCountry.set(d)
-        return
-      }
-    }
-  }
-
-  function selectB(code: string) {
-    for (const [, d] of dataMap) {
-      if (d.countryCode === code) {
-        compareCountry.set(d)
-        return
-      }
-    }
+    codeA = ''
+    codeB = ''
   }
 
   function getAllRates(
@@ -67,7 +73,6 @@
     return result
   }
 
-  // Build unified rate comparison: merge all rate names across both countries
   let rateComparison = $derived.by(() => {
     if (!countryA || !countryB) return []
     const ratesA = getAllRates(countryA)
@@ -96,24 +101,52 @@
       return { name: locName((a || b)!.name), key, hasA: !!a, hasB: !!b }
     })
   })
+
+  let generalRows = $derived.by(() => {
+    if (!countryA || !countryB) return []
+    return [
+      { label: 'Currency', a: countryA.regime.currency, b: countryB.regime.currency },
+      { label: 'Timezone', a: countryA.regime.time_zone, b: countryB.regime.time_zone },
+      {
+        label: 'Tax Scheme',
+        a: countryA.regime.tax_scheme || '—',
+        b: countryB.regime.tax_scheme || '—'
+      },
+      {
+        label: 'Categories',
+        a: String(countryA.regime.categories.length),
+        b: String(countryB.regime.categories.length)
+      },
+      {
+        label: 'Identities',
+        a: String(countryA.regime.identities?.length || 0),
+        b: String(countryB.regime.identities?.length || 0)
+      },
+      {
+        label: 'Corrections',
+        a: countryA.regime.corrections?.flatMap((c) => c.types).join(', ') || '—',
+        b: countryB.regime.corrections?.flatMap((c) => c.types).join(', ') || '—'
+      }
+    ]
+  })
 </script>
 
 <svelte:window
   onkeydown={(e) => {
-    if (e.key === 'Escape') close()
+    if (e.key === 'Escape' && isOpen) close()
   }}
 />
 
-{#if isComparing}
+{#if isOpen}
   <button
     class="fixed inset-0 z-50"
-    style="background: rgba(4,4,33,0.7); backdrop-filter: blur(4px);"
+    style="background: rgba(4,4,33,0.7);"
     onclick={close}
     aria-label="Close"
   ></button>
 
   <div
-    class="fixed inset-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[720px] sm:top-[5%] sm:bottom-[5%] z-50 rounded-xl overflow-hidden flex flex-col"
+    class="fixed inset-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[700px] sm:top-[5%] sm:bottom-[5%] z-50 rounded-xl overflow-hidden flex flex-col"
     style="background: #0a0a24; border: 1px solid #1e1e42; box-shadow: 0 24px 64px rgba(0,0,0,0.6);"
     transition:fly={{ y: 20, duration: 200 }}
   >
@@ -144,30 +177,28 @@
       style="border-bottom: 1px solid #141435;"
     >
       <select
-        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey appearance-none"
+        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey"
         style="background: #0e0e2a; border: 1px solid #1e1e42;"
-        value={countryA?.countryCode || ''}
-        onchange={(e) => selectA((e.target as HTMLSelectElement).value)}
+        bind:value={codeA}
       >
-        <option value="" disabled>Select first country</option>
+        <option value="" disabled>Select country</option>
         {#each allCountries as c}
-          <option value={c.countryCode}
-            >{countryFlag(c.countryCode)} {locName(c.regime.name)}</option
-          >
+          <option value={c.countryCode}>
+            {countryFlag(c.countryCode)} {locName(c.regime.name)}
+          </option>
         {/each}
       </select>
       <span class="text-[10px] font-bold text-grey-dark uppercase">vs</span>
       <select
-        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey appearance-none"
+        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey"
         style="background: #0e0e2a; border: 1px solid #1e1e42;"
-        value={countryB?.countryCode || ''}
-        onchange={(e) => selectB((e.target as HTMLSelectElement).value)}
+        bind:value={codeB}
       >
-        <option value="" disabled>Select second country</option>
+        <option value="" disabled>Select country</option>
         {#each allCountries as c}
-          <option value={c.countryCode}
-            >{countryFlag(c.countryCode)} {locName(c.regime.name)}</option
-          >
+          <option value={c.countryCode}>
+            {countryFlag(c.countryCode)} {locName(c.regime.name)}
+          </option>
         {/each}
       </select>
     </div>
@@ -176,9 +207,8 @@
     <div class="flex-1 overflow-y-auto panel-scroll">
       {#if countryA && countryB}
         <!-- Country headers -->
-        <div class="grid grid-cols-[1fr_1fr] gap-px" style="background: #141435;">
+        <div class="grid grid-cols-2 gap-px" style="background: #141435;">
           {#each [countryA, countryB] as c}
-            {@const region = countryRegion[c.countryCode] as Region}
             <div class="px-4 py-4 text-center" style="background: #0a0a24;">
               <span class="text-3xl">{countryFlag(c.countryCode)}</span>
               <div class="text-base font-bold text-grey mt-2">{locName(c.regime.name)}</div>
@@ -196,85 +226,77 @@
           {/each}
         </div>
 
-        <!-- Tax Rates comparison -->
+        <!-- Tax Rates -->
         {#if rateComparison.length > 0}
           <div class="px-5 pt-4 pb-2">
-            <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider mb-3">
+            <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">
               Tax Rates
             </h4>
           </div>
-          <div style="border-top: 1px solid #141435;">
-            {#each rateComparison as row}
-              {@const different = row.a !== row.b}
-              <div
-                class="grid grid-cols-[1fr_auto_1fr] items-center px-5 py-2"
-                style="border-bottom: 1px solid #0e0e2a;"
+          {#each rateComparison as row}
+            {@const different = row.a !== row.b}
+            <div
+              class="grid grid-cols-[1fr_auto_1fr] items-center px-5 py-2"
+              style="border-bottom: 1px solid #0e0e2a;"
+            >
+              <span
+                class="text-sm text-right tabular-nums {different
+                  ? 'font-bold text-grey'
+                  : 'text-paleblue'}">{row.a}</span
               >
-                <span
-                  class="text-sm text-right tabular-nums {different
-                    ? 'font-bold text-grey'
-                    : 'text-paleblue'}">{row.a}</span
-                >
-                <div class="px-4 text-center">
-                  <span class="text-[10px] text-grey-dark">{row.category}</span>
-                  <div class="text-xs text-paleblue">{row.name}</div>
-                </div>
-                <span
-                  class="text-sm tabular-nums {different ? 'font-bold text-grey' : 'text-paleblue'}"
-                  >{row.b}</span
-                >
+              <div class="px-4 text-center min-w-24">
+                <span class="text-[10px] text-grey-dark">{row.category}</span>
+                <div class="text-xs text-paleblue">{row.name}</div>
               </div>
-            {/each}
-          </div>
+              <span
+                class="text-sm tabular-nums {different ? 'font-bold text-grey' : 'text-paleblue'}"
+                >{row.b}</span
+              >
+            </div>
+          {/each}
         {/if}
 
-        <!-- Addons comparison -->
+        <!-- Addons -->
         {#if addonComparison.length > 0}
           <div class="px-5 pt-4 pb-2">
-            <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider mb-3">
+            <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">
               Addons & Formats
             </h4>
           </div>
-          <div style="border-top: 1px solid #141435;">
-            {#each addonComparison as addon}
-              <div
-                class="grid grid-cols-[1fr_auto_1fr] items-center px-5 py-2"
-                style="border-bottom: 1px solid #0e0e2a;"
-              >
-                <div class="text-right">
-                  {#if addon.hasA}
-                    <span class="text-blue text-sm">✓</span>
-                  {:else}
-                    <span class="text-grey-dark text-sm">—</span>
-                  {/if}
-                </div>
-                <div class="px-4 text-center">
-                  <div class="text-xs text-paleblue">{addon.name}</div>
-                  <span class="text-[10px] font-mono text-grey-dark">{addon.key}</span>
-                </div>
-                <div>
-                  {#if addon.hasB}
-                    <span class="text-blue text-sm">✓</span>
-                  {:else}
-                    <span class="text-grey-dark text-sm">—</span>
-                  {/if}
-                </div>
+          {#each addonComparison as addon}
+            <div
+              class="grid grid-cols-[1fr_auto_1fr] items-center px-5 py-2"
+              style="border-bottom: 1px solid #0e0e2a;"
+            >
+              <div class="text-right">
+                {#if addon.hasA}
+                  <span class="text-blue text-sm">✓</span>
+                {:else}
+                  <span class="text-grey-dark text-sm">—</span>
+                {/if}
               </div>
-            {/each}
-          </div>
+              <div class="px-4 text-center min-w-32">
+                <div class="text-xs text-paleblue">{addon.name}</div>
+                <span class="text-[10px] font-mono text-grey-dark">{addon.key}</span>
+              </div>
+              <div>
+                {#if addon.hasB}
+                  <span class="text-blue text-sm">✓</span>
+                {:else}
+                  <span class="text-grey-dark text-sm">—</span>
+                {/if}
+              </div>
+            </div>
+          {/each}
         {/if}
 
-        <!-- General info -->
+        <!-- General -->
         <div class="px-5 pt-4 pb-2">
-          <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider mb-3">
+          <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">
             General
           </h4>
         </div>
-        {#each [{ label: 'Timezone', a: countryA.regime.time_zone, b: countryB.regime.time_zone }, { label: 'Categories', a: String(countryA.regime.categories.length), b: String(countryB.regime.categories.length) }, { label: 'Identities', a: String(countryA.regime.identities?.length || 0), b: String(countryB.regime.identities?.length || 0) }, { label: 'Corrections', a: countryA.regime.corrections
-                ?.flatMap((c) => c.types)
-                .join(', ') || '—', b: countryB.regime.corrections
-                ?.flatMap((c) => c.types)
-                .join(', ') || '—' }] as row}
+        {#each generalRows as row}
           {@const different = row.a !== row.b}
           <div
             class="grid grid-cols-[1fr_auto_1fr] items-center px-5 py-2"
@@ -284,20 +306,20 @@
               class="text-sm text-right {different ? 'font-semibold text-grey' : 'text-paleblue'}"
               >{row.a}</span
             >
-            <span class="px-4 text-xs text-grey-dim text-center w-28">{row.label}</span>
+            <span class="px-4 text-xs text-grey-dim text-center min-w-24">{row.label}</span>
             <span class="text-sm {different ? 'font-semibold text-grey' : 'text-paleblue'}"
               >{row.b}</span
             >
           </div>
         {/each}
-
         <div class="h-4"></div>
+      {:else if countryA || countryB}
+        <div class="flex flex-col items-center justify-center py-16 text-center">
+          <p class="text-sm text-grey-dim">Select a second country to compare</p>
+        </div>
       {:else}
         <div class="flex flex-col items-center justify-center py-16 text-center">
-          <span class="text-3xl mb-3">🔍</span>
-          <p class="text-sm text-grey-dim">
-            Select two countries above to compare their tax regimes
-          </p>
+          <p class="text-sm text-grey-dim">Select two countries to compare their tax regimes</p>
         </div>
       {/if}
     </div>
