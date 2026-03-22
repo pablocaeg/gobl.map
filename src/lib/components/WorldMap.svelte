@@ -20,6 +20,7 @@
   let features = $state<GeoJSON.Feature[]>([])
   let outline = $state<string>('')
   let graticuleD = $state<string>('')
+  let bordersD = $state<string>('')
   let hoveredId: string | null = $state(null)
   let selectedId: string | null = $state(null)
   let tooltipX = $state(0)
@@ -49,9 +50,16 @@
       world,
       world.objects.countries
     ) as unknown as GeoJSON.FeatureCollection
-    features = countries.features
+
+    // Remove Antarctica (id 010) — visual noise
+    features = countries.features.filter((f) => f.id !== '010')
+
     outline = pathGenerator({ type: 'Sphere' }) || ''
     graticuleD = pathGenerator(graticule()) || ''
+
+    // Single shared border path — cleaner and faster than per-country strokes
+    const mesh = topojson.mesh(world, world.objects.countries, (a: any, b: any) => a !== b)
+    bordersD = pathGenerator(mesh as any) || ''
 
     const zoomBehavior = zoom()
       .scaleExtent([1, 8])
@@ -81,29 +89,18 @@
     if (selectedId === id) return '#ffffff'
     const info = getCountryInfo(id)
     if (!info) {
-      return hoveredId === id ? '#1e1e42' : '#161636'
+      return hoveredId === id ? '#1a1a40' : '#111130'
     }
     if (hoveredId === id) return '#ffffff'
     const region = countryRegion[info.countryCode] || countryRegion[info.regime.country]
     return region ? regionColors[region] : '#6EC5EE'
   }
 
-  function getStroke(id: string): string {
-    if (selectedId === id || hoveredId === id) return '#6EC5EE'
-    return '#252548'
-  }
-
-  function getStrokeWidth(id: string): number {
-    if (selectedId === id) return 2
-    if (hoveredId === id) return 1.5
-    return 0.3
-  }
-
   function getOpacity(id: string): number {
     if (!hoveredId) return 1
     if (hoveredId === id) return 1
     if (selectedId === id) return 1
-    return 0.6
+    return 0.5
   }
 
   function getCountryName(id: string): string {
@@ -169,26 +166,19 @@
     preserveAspectRatio="xMidYMid meet"
   >
     <defs>
-      <radialGradient id="ocean-glow" cx="50%" cy="50%" r="50%">
+      <radialGradient id="ocean" cx="50%" cy="45%" r="55%">
         <stop offset="0%" stop-color="#0c0c30" />
         <stop offset="100%" stop-color="#060618" />
       </radialGradient>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="2" result="blur" />
-        <feMerge>
-          <feMergeNode in="blur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
     </defs>
     <g bind:this={gEl}>
       <!-- Ocean -->
-      <path d={outline} fill="url(#ocean-glow)" stroke="none" />
+      <path d={outline} fill="url(#ocean)" stroke="none" />
 
       <!-- Graticule -->
-      <path d={graticuleD} fill="none" stroke="#1a1a3e" stroke-width="0.3" />
+      <path d={graticuleD} fill="none" stroke="#14143a" stroke-width="0.25" pointer-events="none" />
 
-      <!-- Countries -->
+      <!-- Country fills — no per-country stroke, borders handled separately -->
       {#each features as feature}
         {@const id = feature.id?.toString() || ''}
         {@const d = pathGenerator(feature) || ''}
@@ -197,12 +187,9 @@
         <path
           {d}
           fill={getFill(id)}
-          stroke={getStroke(id)}
-          stroke-width={getStrokeWidth(id)}
+          stroke="none"
           opacity={getOpacity(id)}
-          class={supported ? 'cursor-pointer' : ''}
-          style="transition: fill 0.2s ease, stroke 0.2s ease, opacity 0.2s ease; pointer-events: all;"
-          filter={hoveredId === id && supported ? 'url(#glow)' : undefined}
+          class="country {supported ? 'supported' : ''}"
           role={supported ? 'button' : 'img'}
           tabindex={supported ? 0 : -1}
           aria-label={getCountryName(id)}
@@ -216,8 +203,18 @@
         />
       {/each}
 
-      <!-- Sphere border -->
-      <path d={outline} fill="none" stroke="#252548" stroke-width="0.5" pointer-events="none" />
+      <!-- Shared borders — one single path, much cleaner -->
+      <path
+        d={bordersD}
+        fill="none"
+        stroke="#1c1c48"
+        stroke-width="0.3"
+        stroke-linejoin="round"
+        pointer-events="none"
+      />
+
+      <!-- Sphere outline -->
+      <path d={outline} fill="none" stroke="#1c1c48" stroke-width="0.4" pointer-events="none" />
     </g>
   </svg>
 
@@ -270,3 +267,13 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .country {
+    pointer-events: all;
+    transition: fill 0.15s ease, opacity 0.15s ease;
+  }
+  .country.supported {
+    cursor: pointer;
+  }
+</style>
