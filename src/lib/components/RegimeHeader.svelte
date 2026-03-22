@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { CountryData } from '$lib/utils/data-loader'
-  import { locName, countryFlag } from '$lib/utils/format'
+  import { locName } from '$lib/utils/format'
+  import Flag from './Flag.svelte'
   import { countryRegion, regionColors } from '$lib/data/regions'
   import type { Region } from '$lib/data/regions'
   import CopyButton from './CopyButton.svelte'
@@ -13,7 +14,7 @@
 
 <div>
   <div class="flex items-start gap-3 mb-4">
-    <span class="text-4xl leading-none mt-0.5">{countryFlag(country.countryCode)}</span>
+    <Flag code={country.countryCode} size="lg" />
     <div class="flex-1">
       <h3 class="text-xl font-bold text-grey leading-tight">{locName(country.regime.name)}</h3>
       <div class="flex items-center gap-2 mt-1">

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { regimeData } from '$lib/stores/regimes'
-  import { locName, countryFlag } from '$lib/utils/format'
+  import { locName } from '$lib/utils/format'
+  import Flag from './Flag.svelte'
   import type { CountryData } from '$lib/utils/data-loader'
 
   let dataMap = $state<Map<string, CountryData>>(new Map())
@@ -99,7 +100,7 @@
         <tr style="border-bottom: 1px solid #0e0e2a;">
           <td class="px-4 py-2 sticky left-0" style="background: #060618;">
             <div class="flex items-center gap-2">
-              <span class="text-base leading-none">{countryFlag(row.data.countryCode)}</span>
+              <Flag code={row.data.countryCode} />
               <span class="text-sm font-medium text-grey">{locName(row.data.regime.name)}</span>
             </div>
           </td>

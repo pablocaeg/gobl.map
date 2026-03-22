@@ -2,6 +2,7 @@
   import { selectedCountry, compareMode } from '$lib/stores/selection'
   import { regimeData } from '$lib/stores/regimes'
   import { locName, countryFlag, currentRate, fmtPercent } from '$lib/utils/format'
+  import Flag from './Flag.svelte'
   import type { CountryData } from '$lib/utils/data-loader'
   import { fly } from 'svelte/transition'
 
@@ -221,7 +222,7 @@
         <div class="grid grid-cols-2" style="border-bottom: 1px solid #141435;">
           {#each [countryA, countryB] as c}
             <div class="px-6 py-5 text-center" style="background: #0a0a24;">
-              <span class="text-4xl">{countryFlag(c.countryCode)}</span>
+              <Flag code={c.countryCode} size="lg" />
               <div class="text-lg font-bold text-grey mt-2">{locName(c.regime.name)}</div>
               <div class="flex items-center justify-center gap-2 mt-1.5">
                 <span class="font-mono text-xs text-grey-dim">{c.countryCode}</span>

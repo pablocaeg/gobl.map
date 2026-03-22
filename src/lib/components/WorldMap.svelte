@@ -12,7 +12,8 @@
   import { numericToName, alpha2ToNumeric, numericToAlpha2 } from '$lib/data/country-codes'
   import { compliance, getComplianceLabel, type ComplianceInfo } from '$lib/data/compliance'
   import { countryRegion, regionColors } from '$lib/data/regions'
-  import { locName, countryFlag } from '$lib/utils/format'
+  import { locName } from '$lib/utils/format'
+  import Flag from './Flag.svelte'
   import type { CountryData } from '$lib/utils/data-loader'
   import { base } from '$app/paths'
 
@@ -32,7 +33,7 @@
   let tooltipVisible = $state(false)
   let tooltipContent = $state({
     name: '',
-    flag: '',
+    flagCode: '',
     supported: false,
     isPending: false,
     prAuthor: '',
@@ -179,13 +180,11 @@
     const comp = getCompliance(id)
     tooltipContent = {
       name: pendingInfo?.countryName || getCountryName(id),
-      flag: info
-        ? countryFlag(info.countryCode)
+      flagCode: info
+        ? info.countryCode
         : pendingInfo
-          ? countryFlag(pendingInfo.countryCode)
-          : alpha
-            ? countryFlag(alpha)
-            : '',
+          ? pendingInfo.countryCode
+          : alpha || '',
       supported: isSupported(id),
       isPending: isPending(id) && !isSupported(id),
       prAuthor: pendingInfo?.author || '',
@@ -347,8 +346,8 @@
       style="left: {tooltipX}px; top: {tooltipY}px; background: #0e0e2aee; border-color: #2a2a50; backdrop-filter: blur(8px);"
     >
       <div class="flex items-center gap-2">
-        {#if tooltipContent.flag}
-          <span class="text-lg leading-none">{tooltipContent.flag}</span>
+        {#if tooltipContent.flagCode}
+          <Flag code={tooltipContent.flagCode} size="sm" />
         {/if}
         <span class="font-semibold text-grey">{tooltipContent.name}</span>
       </div>

@@ -2,7 +2,8 @@
   import { regimeData } from '$lib/stores/regimes'
   import { selectedCountry } from '$lib/stores/selection'
   import { countryRegion, regionColors } from '$lib/data/regions'
-  import { locName, countryFlag, currentRate, fmtPercent } from '$lib/utils/format'
+  import { locName, currentRate, fmtPercent } from '$lib/utils/format'
+  import Flag from './Flag.svelte'
   import type { CountryData } from '$lib/utils/data-loader'
   import type { Region } from '$lib/data/regions'
 
@@ -161,7 +162,7 @@
                   style="background: {regionColors[region]}"
                 ></span>
               {/if}
-              <span class="text-lg leading-none">{countryFlag(row.countryCode)}</span>
+              <Flag code={row.countryCode} />
               <span class="font-medium text-grey">{locName(row.regime.name)}</span>
             </div>
           </td>

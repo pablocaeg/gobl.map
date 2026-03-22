@@ -1,7 +1,8 @@
 <script lang="ts">
   import { regimeData } from '$lib/stores/regimes'
   import { selectedCountry } from '$lib/stores/selection'
-  import { locName, countryFlag } from '$lib/utils/format'
+  import { locName } from '$lib/utils/format'
+  import Flag from './Flag.svelte'
   import type { CountryData } from '$lib/utils/data-loader'
 
   let query = $state('')
@@ -77,7 +78,7 @@
           onmouseleave={(e) => (e.currentTarget.style.background = 'transparent')}
           onmousedown={() => selectCountry(result)}
         >
-          <span class="text-base">{countryFlag(result.countryCode)}</span>
+          <Flag code={result.countryCode} />
           <div class="flex-1 min-w-0">
             <div class="text-sm font-medium text-grey truncate">{locName(result.regime.name)}</div>
             <div class="text-xs text-grey-dim">{result.countryCode} · {result.regime.currency}</div>
