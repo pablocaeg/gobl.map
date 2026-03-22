@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { geoNaturalEarth1, geoPath, geoGraticule } from 'd3-geo'
+  import { geoNaturalEarth1, geoPath, geoGraticule, geoArea } from 'd3-geo'
   import { select } from 'd3-selection'
-  import { zoom, zoomIdentity } from 'd3-zoom'
+  import { zoom, zoomIdentity, type ZoomBehavior } from 'd3-zoom'
+  import 'd3-transition'
   import * as topojson from 'topojson-client'
   import { regimeData } from '$lib/stores/regimes'
   import { selectedCountry } from '$lib/stores/selection'
@@ -35,6 +36,7 @@
     addons: 0
   })
   let dataMap = $state<Map<string, CountryData>>(new Map())
+  let zoomRef: ZoomBehavior<SVGSVGElement, unknown>
 
   regimeData.subscribe((v) => (dataMap = v))
   selectedCountry.subscribe((v) => (selectedId = v ? v.numericCode : null))
@@ -61,19 +63,16 @@
     const mesh = topojson.mesh(world, world.objects.countries, (a: any, b: any) => a !== b)
     bordersD = pathGenerator(mesh as any) || ''
 
-    const zoomBehavior = zoom()
+    zoomRef = zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, 8])
       .on('zoom', (event) => {
         select(gEl).attr('transform', event.transform.toString())
       })
 
-    select(svgEl).call(zoomBehavior as any)
+    select(svgEl).call(zoomRef)
 
     select(svgEl).on('dblclick.zoom', () => {
-      select(svgEl)
-        .transition()
-        .duration(500)
-        .call((zoomBehavior as any).transform, zoomIdentity)
+      select(svgEl).transition().duration(500).call(zoomRef.transform, zoomIdentity)
     })
   })
 
@@ -133,10 +132,51 @@
     tooltipVisible = false
   }
 
+  // For MultiPolygon countries (France, US, etc.), get bounds of the largest
+  // polygon only — avoids zooming to the middle of the ocean
+  function mainlandBounds(feature: GeoJSON.Feature): [[number, number], [number, number]] {
+    const geom = feature.geometry
+    if (geom.type === 'MultiPolygon') {
+      let largest: GeoJSON.Feature | null = null
+      let maxArea = 0
+      for (const coords of geom.coordinates) {
+        const poly: GeoJSON.Feature = {
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'Polygon', coordinates: coords }
+        }
+        const a = geoArea(poly)
+        if (a > maxArea) {
+          maxArea = a
+          largest = poly
+        }
+      }
+      if (largest) return pathGenerator.bounds(largest)
+    }
+    return pathGenerator.bounds(feature)
+  }
+
   function handleClick(id: string) {
     const info = getCountryInfo(id)
-    if (info) {
-      selectedCountry.set(info)
+    if (!info) return
+    selectedCountry.set(info)
+
+    // Zoom to mainland
+    const feature = features.find((f) => f.id?.toString() === id)
+    if (feature && svgEl && zoomRef) {
+      const [[x0, y0], [x1, y1]] = mainlandBounds(feature)
+      const dx = x1 - x0
+      const dy = y1 - y0
+      const cx = (x0 + x1) / 2
+      const cy = (y0 + y1) / 2
+      const scale = Math.min(8, 0.65 / Math.max(dx / width, dy / height))
+      const tx = width / 2 - scale * cx
+      const ty = height / 2 - scale * cy
+
+      select(svgEl)
+        .transition()
+        .duration(500)
+        .call(zoomRef.transform, zoomIdentity.translate(tx, ty).scale(scale))
     }
   }
 
