@@ -7,6 +7,8 @@
   import * as topojson from 'topojson-client'
   import { regimeData } from '$lib/stores/regimes'
   import { selectedCountry } from '$lib/stores/selection'
+  import { pendingRegimes } from '$lib/stores/pending'
+  import type { PendingRegime } from '$lib/utils/pending-regimes'
   import { numericToName } from '$lib/data/country-codes'
   import { countryRegion, regionColors } from '$lib/data/regions'
   import { locName, countryFlag } from '$lib/utils/format'
@@ -31,15 +33,46 @@
     name: '',
     flag: '',
     supported: false,
+    isPending: false,
+    prTitle: '',
+    prAuthor: '',
     taxScheme: '',
     currency: '',
     addons: 0
   })
   let dataMap = $state<Map<string, CountryData>>(new Map())
+  let pending = $state<PendingRegime[]>([])
   let zoomRef: ZoomBehavior<SVGSVGElement, unknown>
+
+  // Alpha-2 → numeric for pending countries not in the main mapping
+  const EXTRA_NUMERIC: Record<string, string> = {
+    JP: '392', FI: '246', AD: '020', TR: '792', SA: '682',
+    NO: '578', IL: '376', RO: '642', HU: '348', HR: '191',
+    BG: '100', KR: '410', AU: '036', NZ: '554', EG: '818',
+    NG: '566', KE: '404', CL: '152', PE: '604', EC: '218',
+    UY: '858', PY: '600'
+  }
+
+  // Set of numeric codes for pending countries
+  let pendingNumeric = $derived.by(() => {
+    const s = new Set<string>()
+    for (const p of pending) {
+      const num = EXTRA_NUMERIC[p.countryCode]
+      if (num) s.add(num)
+    }
+    return s
+  })
+
+  function getPendingInfo(numericId: string): PendingRegime | undefined {
+    for (const p of pending) {
+      if (EXTRA_NUMERIC[p.countryCode] === numericId) return p
+    }
+    return undefined
+  }
 
   regimeData.subscribe((v) => (dataMap = v))
   selectedCountry.subscribe((v) => (selectedId = v ? v.numericCode : null))
+  pendingRegimes.subscribe((v) => (pending = v))
 
   const projection = geoNaturalEarth1().scale(155).translate([480, 270])
   const pathGenerator = geoPath(projection)
@@ -84,15 +117,22 @@
     return dataMap.has(id)
   }
 
+  function isPending(id: string): boolean {
+    return pendingNumeric.has(id)
+  }
+
   function getFill(id: string): string {
     if (selectedId === id) return '#ffffff'
     const info = getCountryInfo(id)
-    if (!info) {
-      return hoveredId === id ? '#1a1a40' : '#111130'
+    if (info) {
+      if (hoveredId === id) return '#ffffff'
+      const region = countryRegion[info.countryCode] || countryRegion[info.regime.country]
+      return region ? regionColors[region] : '#6EC5EE'
     }
-    if (hoveredId === id) return '#ffffff'
-    const region = countryRegion[info.countryCode] || countryRegion[info.regime.country]
-    return region ? regionColors[region] : '#6EC5EE'
+    if (isPending(id)) {
+      return hoveredId === id ? '#3a3a60' : 'url(#pending-pattern)'
+    }
+    return hoveredId === id ? '#1a1a40' : '#111130'
   }
 
   function getOpacity(id: string): number {
@@ -111,10 +151,14 @@
   function handleMouseEnter(event: MouseEvent, id: string) {
     hoveredId = id
     const info = getCountryInfo(id)
+    const pendingInfo = getPendingInfo(id)
     tooltipContent = {
-      name: getCountryName(id),
-      flag: info ? countryFlag(info.countryCode) : '',
+      name: pendingInfo?.countryName || getCountryName(id),
+      flag: info ? countryFlag(info.countryCode) : pendingInfo ? countryFlag(pendingInfo.countryCode) : '',
       supported: isSupported(id),
+      isPending: isPending(id) && !isSupported(id),
+      prTitle: pendingInfo?.prTitle || '',
+      prAuthor: pendingInfo?.author || '',
       taxScheme: info?.regime.tax_scheme || '',
       currency: info?.regime.currency || '',
       addons: info?.addons.length || 0
@@ -210,6 +254,11 @@
         <stop offset="0%" stop-color="#0c0c30" />
         <stop offset="100%" stop-color="#060618" />
       </radialGradient>
+      <!-- Diagonal stripe pattern for pending/in-progress countries -->
+      <pattern id="pending-pattern" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="6" height="6" fill="#161640" />
+        <rect width="2" height="6" fill="#2a2a5a" />
+      </pattern>
     </defs>
     <g bind:this={gEl}>
       <!-- Ocean -->
@@ -298,6 +347,14 @@
         >
           Click to explore →
         </div>
+      {:else if tooltipContent.isPending}
+        <div class="flex items-center gap-1.5 mt-1.5">
+          <span class="w-1.5 h-1.5 rounded-full" style="background: #F0B866;"></span>
+          <span class="text-[11px] font-medium" style="color: #F0B866;">In progress</span>
+        </div>
+        {#if tooltipContent.prAuthor}
+          <div class="text-[10px] text-grey-dim mt-1">PR by @{tooltipContent.prAuthor}</div>
+        {/if}
       {:else}
         <div class="flex items-center gap-1.5 mt-1">
           <span class="w-1.5 h-1.5 rounded-full bg-grey-dark"></span>

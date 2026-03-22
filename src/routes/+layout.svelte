@@ -4,15 +4,20 @@
   import { regimeData } from '$lib/stores/regimes'
   import { loadRegimes } from '$lib/utils/data-loader'
   import { restoreFromHash } from '$lib/stores/selection'
+  import { pendingRegimes } from '$lib/stores/pending'
+  import { fetchPendingRegimes } from '$lib/utils/pending-regimes'
   import { base } from '$app/paths'
 
   let { children } = $props()
 
-  onMount(() => {
+  onMount(async () => {
     const data = loadRegimes()
     regimeData.set(data)
-    // Restore country selection from URL hash (e.g. #es)
     restoreFromHash()
+
+    // Fetch open PRs for in-progress regimes (non-blocking)
+    const pending = await fetchPendingRegimes()
+    pendingRegimes.set(pending)
   })
 </script>
 

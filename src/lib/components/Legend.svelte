@@ -17,7 +17,11 @@
       </div>
     {/each}
     <div class="flex items-center gap-2">
-      <span class="w-3 h-2 rounded-sm shrink-0" style="background: #161636"></span>
+      <span class="w-3 h-2 rounded-sm shrink-0" style="background: repeating-linear-gradient(45deg, #161640, #161640 2px, #2a2a5a 2px, #2a2a5a 4px);"></span>
+      <span class="text-xs" style="color: #F0B866;">In progress (PR open)</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="w-3 h-2 rounded-sm shrink-0" style="background: #111130"></span>
       <span class="text-xs text-grey-dim">Not yet supported</span>
     </div>
   </div>
