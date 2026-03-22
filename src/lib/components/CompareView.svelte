@@ -7,15 +7,12 @@
 
   let isOpen = $state(false)
   let dataMap = $state<Map<string, CountryData>>(new Map())
-
-  // Local state — independent from global selection
   let codeA = $state('')
   let codeB = $state('')
 
   compareMode.subscribe((v) => {
     isOpen = v
     if (v) {
-      // Pre-fill country A from whatever is currently selected on the map
       const sel = selectedCountry
       sel.subscribe((s) => {
         if (s && !codeA) codeA = s.countryCode
@@ -52,6 +49,12 @@
     codeB = ''
   }
 
+  function swap() {
+    const tmp = codeA
+    codeA = codeB
+    codeB = tmp
+  }
+
   interface RateEntry {
     category: string
     rateKey: string
@@ -83,18 +86,14 @@
     if (!countryA || !countryB) return []
     const ratesA = getAllRates(countryA)
     const ratesB = getAllRates(countryB)
-
-    // Match by category + rate key (e.g., "VAT:standard"), not display name
     const allKeys = new Set([
       ...ratesA.map((r) => `${r.category}:${r.rateKey}`),
       ...ratesB.map((r) => `${r.category}:${r.rateKey}`)
     ])
-
     return [...allKeys].map((key) => {
       const [cat, rateKey] = key.split(':')
       const a = ratesA.find((r) => r.category === cat && r.rateKey === rateKey)
       const b = ratesB.find((r) => r.category === cat && r.rateKey === rateKey)
-      // Use whichever name is available (they describe the same rate key)
       const name = a?.rateName || b?.rateName || rateKey
       return { category: cat, name, a: a?.percent || '—', b: b?.percent || '—' }
     })
@@ -151,45 +150,36 @@
 {#if isOpen}
   <button
     class="fixed inset-0 z-50"
-    style="background: rgba(4,4,33,0.7);"
+    style="background: rgba(4,4,33,0.75);"
     onclick={close}
     aria-label="Close"
   ></button>
 
   <div
-    class="fixed inset-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[700px] sm:top-[5%] sm:bottom-[5%] z-50 rounded-xl overflow-hidden flex flex-col"
-    style="background: #0a0a24; border: 1px solid #1e1e42; box-shadow: 0 24px 64px rgba(0,0,0,0.6);"
+    class="fixed inset-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[740px] sm:top-[4%] sm:bottom-[4%] z-50 rounded-2xl overflow-hidden flex flex-col"
+    style="background: #080820; border: 1px solid #1e1e42; box-shadow: 0 32px 80px rgba(0,0,0,0.7);"
     transition:fly={{ y: 20, duration: 200 }}
   >
     <!-- Header -->
     <div
-      class="flex items-center justify-between px-5 py-3 shrink-0"
-      style="border-bottom: 1px solid #1a1a3e;"
+      class="flex items-center justify-between px-6 py-3.5 shrink-0"
+      style="border-bottom: 1px solid #141435;"
     >
       <span class="text-[11px] font-semibold text-grey-dim uppercase tracking-widest"
         >Compare Regimes</span
       >
       <button onclick={close} class="p-1.5 text-grey-dim hover:text-grey transition-colors">
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          stroke-width="2.5"
-        >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
 
     <!-- Country selectors -->
-    <div
-      class="grid grid-cols-[1fr_auto_1fr] gap-3 items-center px-5 py-4"
-      style="border-bottom: 1px solid #141435;"
-    >
+    <div class="grid grid-cols-[1fr_auto_1fr] gap-2 items-center px-6 py-5 shrink-0" style="border-bottom: 1px solid #141435;">
       <select
-        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey"
-        style="background: #0e0e2a; border: 1px solid #1e1e42;"
+        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey w-full"
+        style="background: #0c0c28; border: 1px solid #1e1e42;"
         bind:value={codeA}
       >
         <option value="" disabled>Select country</option>
@@ -199,10 +189,19 @@
           </option>
         {/each}
       </select>
-      <span class="text-[10px] font-bold text-grey-dark uppercase">vs</span>
+      <button
+        onclick={swap}
+        class="w-8 h-8 rounded-full flex items-center justify-center text-grey-dim hover:text-blue transition-colors"
+        style="background: #141435;"
+        title="Swap countries"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      </button>
       <select
-        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey"
-        style="background: #0e0e2a; border: 1px solid #1e1e42;"
+        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey w-full"
+        style="background: #0c0c28; border: 1px solid #1e1e42;"
         bind:value={codeB}
       >
         <option value="" disabled>Select country</option>
@@ -217,13 +216,14 @@
     <!-- Content -->
     <div class="flex-1 overflow-y-auto panel-scroll">
       {#if countryA && countryB}
-        <!-- Country headers -->
-        <div class="grid grid-cols-2 gap-px" style="background: #141435;">
+
+        <!-- Country headers side by side -->
+        <div class="grid grid-cols-2" style="border-bottom: 1px solid #141435;">
           {#each [countryA, countryB] as c}
-            <div class="px-4 py-4 text-center" style="background: #0a0a24;">
-              <span class="text-3xl">{countryFlag(c.countryCode)}</span>
-              <div class="text-base font-bold text-grey mt-2">{locName(c.regime.name)}</div>
-              <div class="flex items-center justify-center gap-2 mt-1">
+            <div class="px-6 py-5 text-center" style="background: #0a0a24;">
+              <span class="text-4xl">{countryFlag(c.countryCode)}</span>
+              <div class="text-lg font-bold text-grey mt-2">{locName(c.regime.name)}</div>
+              <div class="flex items-center justify-center gap-2 mt-1.5">
                 <span class="font-mono text-xs text-grey-dim">{c.countryCode}</span>
                 <span class="text-xs text-grey-dark">{c.regime.currency}</span>
                 {#if c.regime.tax_scheme}
@@ -237,99 +237,106 @@
           {/each}
         </div>
 
-        <!-- Tax Rates -->
+        <!-- Tax Rates section -->
         {#if rateComparison.length > 0}
-          <div class="px-5 pt-4 pb-2">
-            <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">
-              Tax Rates
-            </h4>
+          <div class="px-6 pt-5 pb-3">
+            <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">Tax Rates</h4>
           </div>
-          {#each rateComparison as row}
+          <div class="mx-6 rounded-lg overflow-hidden" style="border: 1px solid #141435;">
+            {#each rateComparison as row, i}
+              {@const different = row.a !== row.b}
+              {@const bothHave = row.a !== '—' && row.b !== '—'}
+              <div
+                class="grid grid-cols-[1fr_auto_1fr] items-center px-4 py-2.5"
+                style="background: {i % 2 === 0 ? '#0c0c28' : '#0a0a24'};"
+              >
+                <div class="text-right">
+                  <span class="text-sm tabular-nums {row.a === '—' ? 'text-grey-dark' : different ? 'font-bold text-grey' : 'text-paleblue'}">
+                    {row.a}
+                  </span>
+                </div>
+                <div class="px-5 text-center min-w-28">
+                  <div class="text-[10px] font-mono text-grey-dark">{row.category}</div>
+                  <div class="text-xs text-paleblue leading-tight">{row.name}</div>
+                </div>
+                <div>
+                  <span class="text-sm tabular-nums {row.b === '—' ? 'text-grey-dark' : different ? 'font-bold text-grey' : 'text-paleblue'}">
+                    {row.b}
+                  </span>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- Addons section -->
+        {#if addonComparison.length > 0}
+          <div class="px-6 pt-5 pb-3">
+            <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">Addons & Formats</h4>
+          </div>
+          <div class="mx-6 rounded-lg overflow-hidden" style="border: 1px solid #141435;">
+            {#each addonComparison as addon, i}
+              <div
+                class="grid grid-cols-[1fr_auto_1fr] items-center px-4 py-2.5"
+                style="background: {i % 2 === 0 ? '#0c0c28' : '#0a0a24'};"
+              >
+                <div class="text-right">
+                  {#if addon.hasA}
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold" style="background: #6EC5EE18; color: #6EC5EE;">✓</span>
+                  {:else}
+                    <span class="text-grey-dark text-sm">—</span>
+                  {/if}
+                </div>
+                <div class="px-5 text-center min-w-36">
+                  <div class="text-xs text-paleblue">{addon.name}</div>
+                  <span class="text-[10px] font-mono text-grey-dark">{addon.key}</span>
+                </div>
+                <div>
+                  {#if addon.hasB}
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold" style="background: #6EC5EE18; color: #6EC5EE;">✓</span>
+                  {:else}
+                    <span class="text-grey-dark text-sm">—</span>
+                  {/if}
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- General section -->
+        <div class="px-6 pt-5 pb-3">
+          <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">General</h4>
+        </div>
+        <div class="mx-6 mb-6 rounded-lg overflow-hidden" style="border: 1px solid #141435;">
+          {#each generalRows as row, i}
             {@const different = row.a !== row.b}
             <div
-              class="grid grid-cols-[1fr_auto_1fr] items-center px-5 py-2"
-              style="border-bottom: 1px solid #0e0e2a;"
+              class="grid grid-cols-[1fr_auto_1fr] items-center px-4 py-2.5"
+              style="background: {i % 2 === 0 ? '#0c0c28' : '#0a0a24'};"
             >
-              <span
-                class="text-sm text-right tabular-nums {different
-                  ? 'font-bold text-grey'
-                  : 'text-paleblue'}">{row.a}</span
-              >
-              <div class="px-4 text-center min-w-24">
-                <span class="text-[10px] text-grey-dark">{row.category}</span>
-                <div class="text-xs text-paleblue">{row.name}</div>
-              </div>
-              <span
-                class="text-sm tabular-nums {different ? 'font-bold text-grey' : 'text-paleblue'}"
-                >{row.b}</span
-              >
+              <span class="text-sm text-right {different ? 'font-semibold text-grey' : 'text-paleblue'}">{row.a}</span>
+              <span class="px-5 text-xs text-grey-dim text-center min-w-28">{row.label}</span>
+              <span class="text-sm {different ? 'font-semibold text-grey' : 'text-paleblue'}">{row.b}</span>
             </div>
           {/each}
-        {/if}
-
-        <!-- Addons -->
-        {#if addonComparison.length > 0}
-          <div class="px-5 pt-4 pb-2">
-            <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">
-              Addons & Formats
-            </h4>
-          </div>
-          {#each addonComparison as addon}
-            <div
-              class="grid grid-cols-[1fr_auto_1fr] items-center px-5 py-2"
-              style="border-bottom: 1px solid #0e0e2a;"
-            >
-              <div class="text-right">
-                {#if addon.hasA}
-                  <span class="text-blue text-sm">✓</span>
-                {:else}
-                  <span class="text-grey-dark text-sm">—</span>
-                {/if}
-              </div>
-              <div class="px-4 text-center min-w-32">
-                <div class="text-xs text-paleblue">{addon.name}</div>
-                <span class="text-[10px] font-mono text-grey-dark">{addon.key}</span>
-              </div>
-              <div>
-                {#if addon.hasB}
-                  <span class="text-blue text-sm">✓</span>
-                {:else}
-                  <span class="text-grey-dark text-sm">—</span>
-                {/if}
-              </div>
-            </div>
-          {/each}
-        {/if}
-
-        <!-- General -->
-        <div class="px-5 pt-4 pb-2">
-          <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">
-            General
-          </h4>
         </div>
-        {#each generalRows as row}
-          {@const different = row.a !== row.b}
-          <div
-            class="grid grid-cols-[1fr_auto_1fr] items-center px-5 py-2"
-            style="border-bottom: 1px solid #0e0e2a;"
-          >
-            <span
-              class="text-sm text-right {different ? 'font-semibold text-grey' : 'text-paleblue'}"
-              >{row.a}</span
-            >
-            <span class="px-4 text-xs text-grey-dim text-center min-w-24">{row.label}</span>
-            <span class="text-sm {different ? 'font-semibold text-grey' : 'text-paleblue'}"
-              >{row.b}</span
-            >
-          </div>
-        {/each}
-        <div class="h-4"></div>
+
       {:else if countryA || countryB}
-        <div class="flex flex-col items-center justify-center py-16 text-center">
-          <p class="text-sm text-grey-dim">Select a second country to compare</p>
+        <div class="flex flex-col items-center justify-center py-20 text-center px-8">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4" style="background: #141435;">
+            <svg class="w-6 h-6 text-grey-dim" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+            </svg>
+          </div>
+          <p class="text-sm text-grey-dim">Pick a second country to start comparing</p>
         </div>
       {:else}
-        <div class="flex flex-col items-center justify-center py-16 text-center">
+        <div class="flex flex-col items-center justify-center py-20 text-center px-8">
+          <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4" style="background: #141435;">
+            <svg class="w-6 h-6 text-grey-dim" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
+            </svg>
+          </div>
           <p class="text-sm text-grey-dim">Select two countries to compare their tax regimes</p>
         </div>
       {/if}
