@@ -52,10 +52,15 @@
     codeB = ''
   }
 
-  function getAllRates(
-    data: CountryData
-  ): { category: string; rateName: string; percent: string }[] {
-    const result: { category: string; rateName: string; percent: string }[] = []
+  interface RateEntry {
+    category: string
+    rateKey: string
+    rateName: string
+    percent: string
+  }
+
+  function getAllRates(data: CountryData): RateEntry[] {
+    const result: RateEntry[] = []
     for (const cat of data.regime.categories) {
       if (cat.rates) {
         for (const rate of cat.rates) {
@@ -63,6 +68,7 @@
           if (v) {
             result.push({
               category: cat.code,
+              rateKey: rate.key,
               rateName: locName(rate.name),
               percent: fmtPercent(v.percent)
             })
@@ -77,14 +83,19 @@
     if (!countryA || !countryB) return []
     const ratesA = getAllRates(countryA)
     const ratesB = getAllRates(countryB)
-    const allNames = new Set([
-      ...ratesA.map((r) => `${r.category}:${r.rateName}`),
-      ...ratesB.map((r) => `${r.category}:${r.rateName}`)
+
+    // Match by category + rate key (e.g., "VAT:standard"), not display name
+    const allKeys = new Set([
+      ...ratesA.map((r) => `${r.category}:${r.rateKey}`),
+      ...ratesB.map((r) => `${r.category}:${r.rateKey}`)
     ])
-    return [...allNames].map((key) => {
-      const [cat, name] = key.split(':')
-      const a = ratesA.find((r) => r.category === cat && r.rateName === name)
-      const b = ratesB.find((r) => r.category === cat && r.rateName === name)
+
+    return [...allKeys].map((key) => {
+      const [cat, rateKey] = key.split(':')
+      const a = ratesA.find((r) => r.category === cat && r.rateKey === rateKey)
+      const b = ratesB.find((r) => r.category === cat && r.rateKey === rateKey)
+      // Use whichever name is available (they describe the same rate key)
+      const name = a?.rateName || b?.rateName || rateKey
       return { category: cat, name, a: a?.percent || '—', b: b?.percent || '—' }
     })
   })
