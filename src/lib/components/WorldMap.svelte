@@ -244,7 +244,12 @@
 
   function handleClick(id: string) {
     const info = getCountryInfo(id)
-    if (!info) return
+    if (!info) {
+      if (needsContribution(id)) {
+        window.open('https://github.com/invopop/gobl', '_blank')
+      }
+      return
+    }
     selectedCountry.set(info)
 
     // Zoom to mainland
@@ -325,9 +330,9 @@
           fill={getFill(id)}
           stroke="none"
           opacity={getOpacity(id)}
-          class="country {supported ? 'supported' : ''}"
-          role={supported ? 'button' : 'img'}
-          tabindex={supported ? 0 : -1}
+          class="country {supported || needsContribution(id) ? 'supported' : ''}"
+          role={supported || needsContribution(id) ? 'button' : 'img'}
+          tabindex={supported || needsContribution(id) ? 0 : -1}
           aria-label={getCountryName(id)}
           onmouseenter={(e) => handleMouseEnter(e, id)}
           onmousemove={handleMouseMove}
@@ -412,6 +417,9 @@
             <span class="text-grey-dim">B2G: <span style="color: {getComplianceColor(tooltipContent.compliance.b2g)};">{getComplianceLabel(tooltipContent.compliance.b2g)}</span></span>
             <span class="text-grey-dim">B2B: <span style="color: {getComplianceColor(tooltipContent.compliance.b2b)};">{getComplianceLabel(tooltipContent.compliance.b2b)}</span></span>
             <span class="text-grey-dim">B2C: <span style="color: {getComplianceColor(tooltipContent.compliance.b2c)};">{getComplianceLabel(tooltipContent.compliance.b2c)}</span></span>
+          </div>
+          <div class="text-[10px] mt-1.5 pt-1.5" style="border-top: 1px solid #1a1a3e; color: #e87b7b;">
+            Click to contribute →
           </div>
         {/if}
       {:else}
