@@ -16,7 +16,7 @@
   function getStandardRate(data: CountryData): number {
     for (const cat of data.regime.categories) {
       if (cat.code === 'VAT' || cat.code === 'GST') {
-        const stdRate = cat.rates?.find((r) => r.key === 'standard')
+        const stdRate = cat.rates?.find((r) => r.rate === 'standard' || r.rate === 'general')
         if (stdRate) {
           const val = currentRate(stdRate.values)
           if (val) return parseFloat(val.percent)

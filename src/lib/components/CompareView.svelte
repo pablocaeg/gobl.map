@@ -68,7 +68,7 @@
           if (v) {
             result.push({
               category: cat.code,
-              rateKey: rate.key,
+              rateKey: rate.rate,
               rateName: locName(rate.name),
               percent: fmtPercent(v.percent)
             })

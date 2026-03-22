@@ -61,7 +61,7 @@ export interface RateValue {
 }
 
 export interface RateDef {
-  key: string
+  rate: string
   keys?: string[]
   name: LocalizedString
   desc?: LocalizedString

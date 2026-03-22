@@ -9,7 +9,7 @@
   let code = $derived.by(() => {
     const r = country.regime
     const cat = r.categories[0]
-    const stdRate = cat?.rates?.find((rt) => rt.key === 'standard')
+    const stdRate = cat?.rates?.find((rt) => rt.rate === 'standard' || rt.rate === 'general')
     const rateVal = stdRate ? currentRate(stdRate.values) : null
     const percent = rateVal ? rateVal.percent.replace('%', '') : '0'
 
