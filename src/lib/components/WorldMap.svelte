@@ -10,7 +10,12 @@
   import { pendingRegimes } from '$lib/stores/pending'
   import type { PendingRegime } from '$lib/utils/pending-regimes'
   import { numericToName, alpha2ToNumeric, numericToAlpha2 } from '$lib/data/country-codes'
-  import { compliance, getComplianceLabel, type ComplianceInfo } from '$lib/data/compliance'
+  import {
+    compliance,
+    getComplianceLabel,
+    getComplianceColor,
+    type ComplianceInfo
+  } from '$lib/data/compliance'
   import { countryRegion, regionColors } from '$lib/data/regions'
   import { locName } from '$lib/utils/format'
   import Flag from './Flag.svelte'
@@ -139,7 +144,13 @@
     if (dataMap.has(id) || isPending(id)) return false
     const c = getCompliance(id)
     if (!c) return false
-    return c.b2b === 'mandatory' || c.b2b === 'upcoming'
+    return (
+      c.b2g === 'mandatory' ||
+      c.b2b === 'mandatory' ||
+      c.b2b === 'upcoming' ||
+      c.b2c === 'mandatory' ||
+      c.b2c === 'upcoming'
+    )
   }
 
   function getFill(id: string): string {
@@ -398,8 +409,9 @@
         </div>
         {#if tooltipContent.compliance}
           <div class="flex gap-3 mt-1.5 text-[10px]">
-            <span class="text-grey-dim">B2B: <span style="color: #ef4444;">{getComplianceLabel(tooltipContent.compliance.b2b)}</span></span>
-            <span class="text-grey-dim">B2G: <span style="color: #ef4444;">{getComplianceLabel(tooltipContent.compliance.b2g)}</span></span>
+            <span class="text-grey-dim">B2G: <span style="color: {getComplianceColor(tooltipContent.compliance.b2g)};">{getComplianceLabel(tooltipContent.compliance.b2g)}</span></span>
+            <span class="text-grey-dim">B2B: <span style="color: {getComplianceColor(tooltipContent.compliance.b2b)};">{getComplianceLabel(tooltipContent.compliance.b2b)}</span></span>
+            <span class="text-grey-dim">B2C: <span style="color: {getComplianceColor(tooltipContent.compliance.b2c)};">{getComplianceLabel(tooltipContent.compliance.b2c)}</span></span>
           </div>
         {/if}
       {:else}

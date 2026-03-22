@@ -23,7 +23,7 @@
     const totalCompliance = Object.keys(compliance).length
     const needsCount = Object.entries(compliance).filter(
       ([code, c]) =>
-        (c.b2b === 'mandatory' || c.b2b === 'upcoming') &&
+        (c.b2g === 'mandatory' || c.b2b === 'mandatory' || c.b2b === 'upcoming' || c.b2c === 'mandatory' || c.b2c === 'upcoming') &&
         !supportedCodes.has(code) &&
         !pendingCodes.has(code)
     ).length
