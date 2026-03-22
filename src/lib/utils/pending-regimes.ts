@@ -89,17 +89,23 @@ export async function fetchPendingRegimes(): Promise<PendingRegime[]> {
       if (!code || seen.has(code)) continue
       seen.add(code)
 
-      // Get country name from parentheses context or NAME_TO_CODE
-      if (!name && codeMatch) {
-        const beforeParen = title.substring(0, title.indexOf('(')).trim()
-        const words = beforeParen.split(/\s+/)
-        // Take last 1-3 words before the parenthesis as country name
-        name = words.slice(-3).join(' ').replace(/^(add|feat:?\s*add|feat\(regimes\):?\s*add)\s*/i, '').trim()
-      }
+      // Resolve country name: prefer NAME_TO_CODE lookup, fallback to parsing title
       if (!name) {
-        name = Object.entries(NAME_TO_CODE).find(([, c]) => c === code)?.[0] || code
-        name = name.charAt(0).toUpperCase() + name.slice(1)
+        const fromMap = Object.entries(NAME_TO_CODE).find(([, c]) => c === code)
+        if (fromMap) {
+          name = fromMap[0].split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        } else if (codeMatch) {
+          // Extract name from text before the (XX) parenthesis
+          const beforeParen = title.substring(0, title.indexOf('(')).trim()
+          // Strip common prefixes
+          name = beforeParen
+            .replace(/^(feat(\([^)]*\))?:?\s*|sa:\s*)/i, '')
+            .replace(/^add\s+/i, '')
+            .replace(/\s+(tax\s+)?regime.*$/i, '')
+            .trim()
+        }
       }
+      if (!name) name = code
 
       results.push({
         countryCode: code,
