@@ -290,10 +290,10 @@
         <rect width="6" height="6" fill="#161640" />
         <rect width="2" height="6" fill="#2a2a5a" />
       </pattern>
-      <!-- Dot pattern for countries needing contribution -->
-      <pattern id="needs-pattern" width="5" height="5" patternUnits="userSpaceOnUse">
-        <rect width="5" height="5" fill="#160d1e" />
-        <circle cx="2.5" cy="2.5" r="0.7" fill="#4a2040" />
+      <!-- Stripe pattern for countries needing contribution (reddish) -->
+      <pattern id="needs-pattern" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="6" height="6" fill="#1a1020" />
+        <rect width="2" height="6" fill="#3a1a30" />
       </pattern>
     </defs>
     <g bind:this={gEl}>

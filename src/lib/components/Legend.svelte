@@ -26,7 +26,7 @@
     <div class="flex items-center gap-2">
       <span
         class="w-3 h-2 rounded-sm shrink-0"
-        style="background: radial-gradient(circle, #4a2040 15%, #160d1e 15%); background-size: 3px 3px;"
+        style="background: repeating-linear-gradient(45deg, #1a1020, #1a1020 2px, #3a1a30 2px, #3a1a30 4px);"
       ></span>
       <span class="text-xs" style="color: #e87b7b;">Needs contribution</span>
     </div>
