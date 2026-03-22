@@ -9,7 +9,7 @@
   import { selectedCountry } from '$lib/stores/selection'
   import { pendingRegimes } from '$lib/stores/pending'
   import type { PendingRegime } from '$lib/utils/pending-regimes'
-  import { numericToName } from '$lib/data/country-codes'
+  import { numericToName, alpha2ToNumeric } from '$lib/data/country-codes'
   import { countryRegion, regionColors } from '$lib/data/regions'
   import { locName, countryFlag } from '$lib/utils/format'
   import type { CountryData } from '$lib/utils/data-loader'
@@ -53,19 +53,23 @@
     UY: '858', PY: '600'
   }
 
-  // Set of numeric codes for pending countries
+  function toNumeric(code: string): string | undefined {
+    return alpha2ToNumeric[code] || EXTRA_NUMERIC[code]
+  }
+
+  // Set of numeric codes for pending countries that aren't already supported
   let pendingNumeric = $derived.by(() => {
     const s = new Set<string>()
     for (const p of pending) {
-      const num = EXTRA_NUMERIC[p.countryCode]
-      if (num) s.add(num)
+      const num = toNumeric(p.countryCode)
+      if (num && !dataMap.has(num)) s.add(num)
     }
     return s
   })
 
   function getPendingInfo(numericId: string): PendingRegime | undefined {
     for (const p of pending) {
-      if (EXTRA_NUMERIC[p.countryCode] === numericId) return p
+      if (toNumeric(p.countryCode) === numericId) return p
     }
     return undefined
   }
