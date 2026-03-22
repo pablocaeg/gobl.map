@@ -9,7 +9,8 @@
   import { selectedCountry } from '$lib/stores/selection'
   import { pendingRegimes } from '$lib/stores/pending'
   import type { PendingRegime } from '$lib/utils/pending-regimes'
-  import { numericToName, alpha2ToNumeric } from '$lib/data/country-codes'
+  import { numericToName, alpha2ToNumeric, numericToAlpha2 } from '$lib/data/country-codes'
+  import { compliance, getComplianceLabel, type ComplianceInfo } from '$lib/data/compliance'
   import { countryRegion, regionColors } from '$lib/data/regions'
   import { locName, countryFlag } from '$lib/utils/format'
   import type { CountryData } from '$lib/utils/data-loader'
@@ -34,11 +35,12 @@
     flag: '',
     supported: false,
     isPending: false,
-    prTitle: '',
     prAuthor: '',
     taxScheme: '',
     currency: '',
-    addons: 0
+    addons: 0,
+    compliance: null as ComplianceInfo | null,
+    needsContribution: false
   })
   let dataMap = $state<Map<string, CountryData>>(new Map())
   let pending = $state<PendingRegime[]>([])
@@ -125,6 +127,20 @@
     return pendingNumeric.has(id)
   }
 
+  function getCompliance(id: string): ComplianceInfo | null {
+    const alpha = numericToAlpha2[id]
+    if (alpha) return compliance[alpha] || null
+    return null
+  }
+
+  // Country needs a contribution: requires invoicing, no GOBL support, no PR open
+  function needsContribution(id: string): boolean {
+    if (dataMap.has(id) || isPending(id)) return false
+    const c = getCompliance(id)
+    if (!c) return false
+    return c.b2b === 'mandatory' || c.b2b === 'upcoming'
+  }
+
   function getFill(id: string): string {
     if (selectedId === id) return '#ffffff'
     const info = getCountryInfo(id)
@@ -135,6 +151,9 @@
     }
     if (isPending(id)) {
       return hoveredId === id ? '#3a3a60' : 'url(#pending-pattern)'
+    }
+    if (needsContribution(id)) {
+      return hoveredId === id ? '#2a1a1a' : '#1f1020'
     }
     return hoveredId === id ? '#1a1a40' : '#111130'
   }
@@ -156,16 +175,25 @@
     hoveredId = id
     const info = getCountryInfo(id)
     const pendingInfo = getPendingInfo(id)
+    const alpha = numericToAlpha2[id]
+    const comp = getCompliance(id)
     tooltipContent = {
       name: pendingInfo?.countryName || getCountryName(id),
-      flag: info ? countryFlag(info.countryCode) : pendingInfo ? countryFlag(pendingInfo.countryCode) : '',
+      flag: info
+        ? countryFlag(info.countryCode)
+        : pendingInfo
+          ? countryFlag(pendingInfo.countryCode)
+          : alpha
+            ? countryFlag(alpha)
+            : '',
       supported: isSupported(id),
       isPending: isPending(id) && !isSupported(id),
-      prTitle: pendingInfo?.prTitle || '',
       prAuthor: pendingInfo?.author || '',
       taxScheme: info?.regime.tax_scheme || '',
       currency: info?.regime.currency || '',
-      addons: info?.addons.length || 0
+      addons: info?.addons.length || 0,
+      compliance: comp,
+      needsContribution: needsContribution(id)
     }
     tooltipVisible = true
     updateTooltipPosition(event)
@@ -359,11 +387,29 @@
         {#if tooltipContent.prAuthor}
           <div class="text-[10px] text-grey-dim mt-1">PR by @{tooltipContent.prAuthor}</div>
         {/if}
+      {:else if tooltipContent.needsContribution}
+        <div class="flex items-center gap-1.5 mt-1.5">
+          <span class="w-1.5 h-1.5 rounded-full" style="background: #ef4444;"></span>
+          <span class="text-[11px] font-medium" style="color: #ef4444;">Needs contribution</span>
+        </div>
+        {#if tooltipContent.compliance}
+          <div class="flex gap-3 mt-1.5 text-[10px]">
+            <span class="text-grey-dim">B2B: <span style="color: #ef4444;">{getComplianceLabel(tooltipContent.compliance.b2b)}</span></span>
+            <span class="text-grey-dim">B2G: <span style="color: #ef4444;">{getComplianceLabel(tooltipContent.compliance.b2g)}</span></span>
+          </div>
+        {/if}
       {:else}
         <div class="flex items-center gap-1.5 mt-1">
           <span class="w-1.5 h-1.5 rounded-full bg-grey-dark"></span>
           <span class="text-[11px] text-grey-dim">Not yet supported</span>
         </div>
+        {#if tooltipContent.compliance}
+          <div class="flex gap-3 mt-1 text-[10px]">
+            {#if tooltipContent.compliance.b2g !== 'unknown'}
+              <span class="text-grey-dark">B2G: {getComplianceLabel(tooltipContent.compliance.b2g)}</span>
+            {/if}
+          </div>
+        {/if}
       {/if}
     </div>
   {/if}
