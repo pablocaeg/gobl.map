@@ -6,8 +6,6 @@
   import { restoreFromHash } from '$lib/stores/selection'
   import { pendingRegimes } from '$lib/stores/pending'
   import { fetchPendingRegimes } from '$lib/utils/pending-regimes'
-  import { guidesData } from '$lib/stores/guides'
-  import { loadGuides } from '$lib/data/compliance'
   import { base } from '$app/paths'
 
   let { children } = $props()
@@ -15,7 +13,6 @@
   onMount(async () => {
     const data = loadRegimes()
     regimeData.set(data)
-    guidesData.set(loadGuides())
     restoreFromHash()
 
     // Fetch open PRs for in-progress regimes (non-blocking)
