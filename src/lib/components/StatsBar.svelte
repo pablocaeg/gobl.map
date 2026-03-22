@@ -13,13 +13,27 @@
 
   let stats = $derived.by(() => {
     const supported = dataMap.size
-    const inProgress = pending.filter(
-      (p) => ![...dataMap.values()].some((d) => d.countryCode === p.countryCode)
+    const supportedCodes = new Set([...dataMap.values()].map((d) => d.countryCode))
+    const pendingCodes = new Set(
+      pending
+        .filter((p) => !supportedCodes.has(p.countryCode))
+        .map((p) => p.countryCode)
+    )
+
+    // Countries that require e-invoicing (B2B mandatory or upcoming)
+    const requiring = Object.entries(compliance).filter(
+      ([, c]) => c.b2b === 'mandatory' || c.b2b === 'upcoming'
+    )
+    const totalRequiring = requiring.length
+
+    // How many of those are covered by GOBL
+    const coveredCount = requiring.filter(([code]) => supportedCodes.has(code)).length
+    const coveragePercent = totalRequiring > 0 ? Math.round((coveredCount / totalRequiring) * 100) : 0
+
+    // Needing contribution: require invoicing, no GOBL, no PR
+    const needsCount = requiring.filter(
+      ([code]) => !supportedCodes.has(code) && !pendingCodes.has(code)
     ).length
-    const totalRequiring = Object.values(compliance).filter(
-      (c) => c.b2b === 'mandatory' || c.b2b === 'upcoming'
-    ).length
-    const coveragePercent = totalRequiring > 0 ? Math.round((supported / totalRequiring) * 100) : 0
 
     const addonKeys = new Set<string>()
     const regionCount: Record<string, number> = {}
@@ -31,9 +45,11 @@
 
     return {
       supported,
-      inProgress,
+      coveredCount,
       totalRequiring,
       coveragePercent,
+      inProgress: pendingCodes.size,
+      needsCount,
       addons: addonKeys.size,
       regionCount
     }
@@ -46,15 +62,16 @@
 >
   <div class="flex items-center gap-5">
     <!-- Coverage progress -->
-    <div class="flex items-center gap-2">
-      <div class="w-16 h-1.5 rounded-full overflow-hidden" style="background: #1a1a3e;">
+    <div class="flex items-center gap-2.5">
+      <div class="w-20 h-1.5 rounded-full overflow-hidden" style="background: #1a1a3e;">
         <div
           class="h-full rounded-full transition-all duration-500"
           style="width: {stats.coveragePercent}%; background: #6EC5EE;"
         ></div>
       </div>
       <span class="text-paleblue">
-        <span class="font-bold text-blue">{stats.supported}</span>/{stats.totalRequiring} covered
+        <span class="font-bold text-blue">{stats.coveredCount}</span><span class="text-grey-dark">/{stats.totalRequiring}</span>
+        <span class="text-grey-dim">e-invoicing countries covered</span>
       </span>
     </div>
     <div class="w-px h-3.5" style="background: #1a1a3e;"></div>
@@ -62,6 +79,13 @@
       <span class="font-bold tabular-nums" style="color: #F0B866;">{stats.inProgress}</span>
       <span class="text-grey-dim">in progress</span>
     </div>
+    {#if stats.needsCount > 0}
+      <div class="w-px h-3.5" style="background: #1a1a3e;"></div>
+      <div class="flex items-center gap-1.5">
+        <span class="font-bold tabular-nums" style="color: #e87b7b;">{stats.needsCount}</span>
+        <span class="text-grey-dim">need contribution</span>
+      </div>
+    {/if}
     <div class="w-px h-3.5" style="background: #1a1a3e;"></div>
     <div class="flex items-center gap-1.5">
       <span class="font-bold text-blue tabular-nums">{stats.addons}</span>

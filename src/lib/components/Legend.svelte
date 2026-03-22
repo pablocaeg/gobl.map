@@ -24,8 +24,11 @@
       <span class="text-xs" style="color: #F0B866;">PR open</span>
     </div>
     <div class="flex items-center gap-2">
-      <span class="w-3 h-2 rounded-sm shrink-0" style="background: #1f1020"></span>
-      <span class="text-xs" style="color: #ef4444;">Needs contribution</span>
+      <span
+        class="w-3 h-2 rounded-sm shrink-0"
+        style="background: radial-gradient(circle, #4a2040 15%, #160d1e 15%); background-size: 3px 3px;"
+      ></span>
+      <span class="text-xs" style="color: #e87b7b;">Needs contribution</span>
     </div>
     <div class="flex items-center gap-2">
       <span class="w-3 h-2 rounded-sm shrink-0" style="background: #111130"></span>

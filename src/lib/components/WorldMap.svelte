@@ -154,7 +154,7 @@
       return hoveredId === id ? '#3a3a60' : 'url(#pending-pattern)'
     }
     if (needsContribution(id)) {
-      return hoveredId === id ? '#2a1a1a' : '#1f1020'
+      return hoveredId === id ? '#2a1a2a' : 'url(#needs-pattern)'
     }
     return hoveredId === id ? '#1a1a40' : '#111130'
   }
@@ -289,6 +289,11 @@
       <pattern id="pending-pattern" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
         <rect width="6" height="6" fill="#161640" />
         <rect width="2" height="6" fill="#2a2a5a" />
+      </pattern>
+      <!-- Dot pattern for countries needing contribution -->
+      <pattern id="needs-pattern" width="5" height="5" patternUnits="userSpaceOnUse">
+        <rect width="5" height="5" fill="#160d1e" />
+        <circle cx="2.5" cy="2.5" r="0.7" fill="#4a2040" />
       </pattern>
     </defs>
     <g bind:this={gEl}>
