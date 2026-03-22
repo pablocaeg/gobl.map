@@ -145,7 +145,6 @@
     const c = getCompliance(id)
     if (!c) return false
     return (
-      c.b2g === 'mandatory' ||
       c.b2b === 'mandatory' ||
       c.b2b === 'upcoming' ||
       c.b2c === 'mandatory' ||
