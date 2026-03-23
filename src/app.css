@@ -20,6 +20,32 @@
 html, body {
 	height: 100%;
 	overflow: hidden;
+	-webkit-tap-highlight-color: transparent;
+}
+
+/* Safe area support for notched devices (iPhone X+) */
+@supports (padding: env(safe-area-inset-bottom)) {
+	.safe-bottom {
+		padding-bottom: env(safe-area-inset-bottom);
+	}
+	.safe-top {
+		padding-top: env(safe-area-inset-top);
+	}
+}
+
+/* Smooth momentum scrolling on iOS */
+.mobile-scroll {
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior: contain;
+}
+
+/* Hide scrollbar but allow scrolling (for stats bar etc.) */
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+.no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
 }
 
 /* Smooth scrollbar for detail panel — dark theme */

@@ -60,19 +60,19 @@
       onfocus={() => (focused = true)}
       onblur={() => setTimeout(() => (focused = false), 200)}
       onkeydown={handleKeydown}
-      class="w-56 pl-9 pr-3 py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue/30 placeholder:text-grey-dim transition-all text-grey"
+      class="w-full sm:w-56 pl-9 pr-3 py-2.5 sm:py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue/30 placeholder:text-grey-dim transition-all text-grey"
       style="background: #0e0e2acc; border-color: #2a2a50; backdrop-filter: blur(12px);"
     />
   </div>
 
   {#if focused && results.length > 0}
     <div
-      class="absolute top-full mt-1.5 w-64 rounded-lg border overflow-hidden shadow-2xl"
+      class="absolute top-full mt-1.5 w-full sm:w-64 rounded-lg border overflow-hidden shadow-2xl"
       style="background: #0e0e2af0; border-color: #2a2a50; backdrop-filter: blur(12px);"
     >
       {#each results as result}
         <button
-          class="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors"
+          class="w-full flex items-center gap-2.5 px-3 py-3 sm:py-2.5 text-left transition-colors"
           style="hover:background-color: red;"
           onmouseenter={(e) => (e.currentTarget.style.background = '#1a1a3e')}
           onmouseleave={(e) => (e.currentTarget.style.background = 'transparent')}

@@ -1,17 +1,20 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { geoNaturalEarth1, geoPath, geoGraticule, geoArea } from 'd3-geo'
   import { select } from 'd3-selection'
   import { zoom, zoomIdentity, type ZoomBehavior } from 'd3-zoom'
   import 'd3-transition'
   import * as topojson from 'topojson-client'
   import { regimeData } from '$lib/stores/regimes'
-  import { selectedCountry } from '$lib/stores/selection'
+  import { selectedCountry, selectedGuide } from '$lib/stores/selection'
   import { pendingRegimes } from '$lib/stores/pending'
+  import { topologyData } from '$lib/stores/topology'
+  import { highlightMode, type HighlightMode } from '$lib/stores/filters'
   import type { PendingRegime } from '$lib/utils/pending-regimes'
   import { numericToName, alpha2ToNumeric, numericToAlpha2 } from '$lib/data/country-codes'
   import {
     compliance,
+    guides,
     getComplianceLabel,
     getComplianceColor,
     type ComplianceInfo
@@ -20,7 +23,6 @@
   import { locName } from '$lib/utils/format'
   import Flag from './Flag.svelte'
   import type { CountryData } from '$lib/utils/data-loader'
-  import { base } from '$app/paths'
 
   let svgEl: SVGSVGElement
   let gEl: SVGGElement
@@ -50,7 +52,9 @@
   })
   let dataMap = $state<Map<string, CountryData>>(new Map())
   let pending = $state<PendingRegime[]>([])
+  let highlight = $state<HighlightMode>(null)
   let zoomRef: ZoomBehavior<SVGSVGElement, unknown>
+  let isTouchDevice = $state(false)
 
   // Alpha-2 → numeric for pending countries not in the main mapping
   const EXTRA_NUMERIC: Record<string, string> = {
@@ -82,31 +86,40 @@
     return undefined
   }
 
-  regimeData.subscribe((v) => (dataMap = v))
-  selectedCountry.subscribe((v) => (selectedId = v ? v.numericCode : null))
-  pendingRegimes.subscribe((v) => (pending = v))
+  const unsubs = [
+    regimeData.subscribe((v) => (dataMap = v)),
+    selectedCountry.subscribe((v) => (selectedId = v ? v.numericCode : null)),
+    pendingRegimes.subscribe((v) => (pending = v)),
+    highlightMode.subscribe((v) => (highlight = v))
+  ]
+  onDestroy(() => unsubs.forEach((u) => u()))
 
   const projection = geoNaturalEarth1().scale(155).translate([480, 270])
   const pathGenerator = geoPath(projection)
   const graticule = geoGraticule().step([20, 20])
 
-  onMount(async () => {
-    const res = await fetch(`${base}/world-110m.json`)
-    const world = await res.json()
-    const countries = topojson.feature(
-      world,
-      world.objects.countries
-    ) as unknown as GeoJSON.FeatureCollection
+  onMount(() => {
+    isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
-    // Remove Antarctica (id 010) — visual noise
-    features = countries.features.filter((f) => f.id !== '010')
+    // Topology is fetched by the layout — subscribe and process when ready
+    const unsubTopo = topologyData.subscribe((world) => {
+      if (!world) return
+      const countries = topojson.feature(
+        world,
+        world.objects.countries
+      ) as unknown as GeoJSON.FeatureCollection
 
-    outline = pathGenerator({ type: 'Sphere' }) || ''
-    graticuleD = pathGenerator(graticule()) || ''
+      // Remove Antarctica (id 010) — visual noise
+      features = countries.features.filter((f) => f.id !== '010')
 
-    // Single shared border path — cleaner and faster than per-country strokes
-    const mesh = topojson.mesh(world, world.objects.countries, (a: any, b: any) => a !== b)
-    bordersD = pathGenerator(mesh as any) || ''
+      outline = pathGenerator({ type: 'Sphere' }) || ''
+      graticuleD = pathGenerator(graticule()) || ''
+
+      // Single shared border path — cleaner and faster than per-country strokes
+      const mesh = topojson.mesh(world, world.objects.countries, (a: any, b: any) => a !== b)
+      bordersD = pathGenerator(mesh as any) || ''
+    })
+    unsubs.push(unsubTopo)
 
     zoomRef = zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, 8])
@@ -161,18 +174,27 @@
       return region ? regionColors[region] : '#6EC5EE'
     }
     if (isPending(id)) {
+      if (highlight === 'pending') return hoveredId === id ? '#ffd080' : '#F0B866'
       return hoveredId === id ? '#3a3a60' : 'url(#pending-pattern)'
     }
     if (needsContribution(id)) {
+      if (highlight === 'needs') return hoveredId === id ? '#ff6b6b' : '#ef4444'
       return hoveredId === id ? '#2a1a2a' : 'url(#needs-pattern)'
     }
     return hoveredId === id ? '#1a1a40' : '#111130'
   }
 
   function getOpacity(id: string): number {
+    if (highlight === 'needs' && !needsContribution(id)) {
+      if (hoveredId === id || selectedId === id) return 0.6
+      return 0.12
+    }
+    if (highlight === 'pending' && !isPending(id)) {
+      if (hoveredId === id || selectedId === id) return 0.6
+      return 0.12
+    }
     if (!hoveredId) return 1
-    if (hoveredId === id) return 1
-    if (selectedId === id) return 1
+    if (hoveredId === id || selectedId === id) return 1
     return 0.5
   }
 
@@ -182,8 +204,7 @@
     return numericToName[id] || ''
   }
 
-  function handleMouseEnter(event: MouseEvent, id: string) {
-    hoveredId = id
+  function populateTooltip(id: string) {
     const info = getCountryInfo(id)
     const pendingInfo = getPendingInfo(id)
     const alpha = numericToAlpha2[id]
@@ -204,17 +225,47 @@
       compliance: comp,
       needsContribution: needsContribution(id)
     }
+  }
+
+  function handleMouseEnter(event: MouseEvent, id: string) {
+    if (isTouchDevice) return
+    hoveredId = id
+    populateTooltip(id)
     tooltipVisible = true
     updateTooltipPosition(event)
   }
 
   function handleMouseMove(event: MouseEvent) {
+    if (isTouchDevice) return
     updateTooltipPosition(event)
   }
 
   function handleMouseLeave() {
+    if (isTouchDevice) return
     hoveredId = null
     tooltipVisible = false
+  }
+
+  // On touch: first tap shows tooltip, second tap on same country opens detail
+  let lastTappedId: string | null = null
+  function handleTap(id: string) {
+    if (!isTouchDevice) {
+      handleClick(id)
+      return
+    }
+    // If tapping same country again, open detail panel
+    if (lastTappedId === id) {
+      tooltipVisible = false
+      hoveredId = null
+      lastTappedId = null
+      handleClick(id)
+      return
+    }
+    // First tap: show tooltip
+    lastTappedId = id
+    hoveredId = id
+    populateTooltip(id)
+    tooltipVisible = true
   }
 
   // For MultiPolygon countries (France, US, etc.), get bounds of the largest
@@ -245,10 +296,16 @@
     const info = getCountryInfo(id)
     if (!info) {
       if (needsContribution(id)) {
-        window.open('https://github.com/invopop/gobl', '_blank')
+        const alpha = numericToAlpha2[id]
+        const guide = alpha ? guides.get(alpha) : null
+        if (guide) {
+          selectedCountry.set(null)
+          selectedGuide.set(guide)
+        }
       }
       return
     }
+    selectedGuide.set(null)
     selectedCountry.set(info)
 
     // Zoom to mainland
@@ -336,7 +393,7 @@
           onmouseenter={(e) => handleMouseEnter(e, id)}
           onmousemove={handleMouseMove}
           onmouseleave={handleMouseLeave}
-          onclick={() => handleClick(id)}
+          onclick={() => handleTap(id)}
           onkeydown={(e) => {
             if (e.key === 'Enter') handleClick(id)
           }}
@@ -358,8 +415,8 @@
     </g>
   </svg>
 
-  <!-- Tooltip -->
-  {#if tooltipVisible && tooltipContent.name}
+  <!-- Desktop floating tooltip -->
+  {#if tooltipVisible && tooltipContent.name && !isTouchDevice}
     <div
       bind:this={tooltipEl}
       class="fixed z-50 pointer-events-none rounded-lg shadow-2xl border px-3.5 py-2.5 text-sm"
@@ -434,6 +491,59 @@
           </div>
         {/if}
       {/if}
+    </div>
+  {/if}
+
+  <!-- Mobile bottom bar tooltip -->
+  {#if tooltipVisible && tooltipContent.name && isTouchDevice}
+    <div
+      class="absolute bottom-0 left-0 right-0 z-50 flex items-center gap-3 px-4 py-3 safe-bottom"
+      style="background: #0a0a24ee; border-top: 1px solid #2a2a50; backdrop-filter: blur(12px);"
+    >
+      {#if tooltipContent.flagCode}
+        <Flag code={tooltipContent.flagCode} size="sm" />
+      {/if}
+      <div class="flex-1 min-w-0">
+        <span class="font-semibold text-sm text-grey">{tooltipContent.name}</span>
+        {#if tooltipContent.supported}
+          <div class="flex items-center gap-2 mt-0.5">
+            <span class="text-[11px] text-blue font-medium">Supported</span>
+            {#if tooltipContent.taxScheme}
+              <span class="text-[11px] text-paleblue">{tooltipContent.taxScheme}</span>
+            {/if}
+          </div>
+        {:else if tooltipContent.isPending}
+          <span class="text-[11px] font-medium" style="color: #F0B866;">In progress</span>
+        {:else if tooltipContent.needsContribution}
+          <span class="text-[11px] font-medium" style="color: #ef4444;">Needs contribution</span>
+        {:else}
+          <span class="text-[11px] text-grey-dim">Not yet supported</span>
+        {/if}
+      </div>
+      {#if tooltipContent.supported || tooltipContent.needsContribution}
+        <button
+          class="shrink-0 text-xs font-semibold px-3 py-2 rounded-md"
+          style="background: #6EC5EE; color: #080820;"
+          onclick={() => {
+            const id = hoveredId
+            tooltipVisible = false
+            hoveredId = null
+            lastTappedId = null
+            if (id) handleClick(id)
+          }}
+        >
+          {tooltipContent.supported ? 'Explore' : 'Contribute'}
+        </button>
+      {/if}
+      <button
+        class="shrink-0 p-1.5 rounded-md text-grey-dim"
+        onclick={() => { tooltipVisible = false; hoveredId = null; lastTappedId = null }}
+        aria-label="Dismiss"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
   {/if}
 </div>

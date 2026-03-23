@@ -157,13 +157,13 @@
   ></button>
 
   <div
-    class="fixed inset-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[740px] sm:top-[4%] sm:bottom-[4%] z-50 rounded-2xl overflow-hidden flex flex-col"
+    class="fixed inset-0 sm:inset-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[740px] sm:top-[4%] sm:bottom-[4%] z-50 sm:rounded-2xl overflow-hidden flex flex-col"
     style="background: #080820; border: 1px solid #1e1e42; box-shadow: 0 32px 80px rgba(0,0,0,0.7);"
     transition:fly={{ y: 20, duration: 200 }}
   >
     <!-- Header -->
     <div
-      class="flex items-center justify-between px-6 py-3.5 shrink-0"
+      class="flex items-center justify-between px-4 sm:px-6 py-3.5 shrink-0 safe-top"
       style="border-bottom: 1px solid #141435;"
     >
       <span class="text-[11px] font-semibold text-grey-dim uppercase tracking-widest"
@@ -177,9 +177,9 @@
     </div>
 
     <!-- Country selectors -->
-    <div class="grid grid-cols-[1fr_auto_1fr] gap-2 items-center px-6 py-5 shrink-0" style="border-bottom: 1px solid #141435;">
+    <div class="flex flex-col sm:grid sm:grid-cols-[1fr_auto_1fr] gap-2 items-center px-4 sm:px-6 py-4 sm:py-5 shrink-0" style="border-bottom: 1px solid #141435;">
       <select
-        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey w-full"
+        class="text-sm font-medium rounded-lg px-3 py-3 sm:py-2.5 text-grey w-full"
         style="background: #0c0c28; border: 1px solid #1e1e42;"
         bind:value={codeA}
       >
@@ -192,7 +192,7 @@
       </select>
       <button
         onclick={swap}
-        class="w-8 h-8 rounded-full flex items-center justify-center text-grey-dim hover:text-blue transition-colors"
+        class="w-8 h-8 rounded-full flex items-center justify-center text-grey-dim hover:text-blue transition-colors sm:rotate-0 rotate-90"
         style="background: #141435;"
         title="Swap countries"
       >
@@ -201,7 +201,7 @@
         </svg>
       </button>
       <select
-        class="text-sm font-medium rounded-lg px-3 py-2.5 text-grey w-full"
+        class="text-sm font-medium rounded-lg px-3 py-3 sm:py-2.5 text-grey w-full"
         style="background: #0c0c28; border: 1px solid #1e1e42;"
         bind:value={codeB}
       >
@@ -221,10 +221,10 @@
         <!-- Country headers side by side -->
         <div class="grid grid-cols-2" style="border-bottom: 1px solid #141435;">
           {#each [countryA, countryB] as c}
-            <div class="px-6 py-5 text-center" style="background: #0a0a24;">
+            <div class="px-3 sm:px-6 py-4 sm:py-5 text-center" style="background: #0a0a24;">
               <Flag code={c.countryCode} size="lg" />
-              <div class="text-lg font-bold text-grey mt-2">{locName(c.regime.name)}</div>
-              <div class="flex items-center justify-center gap-2 mt-1.5">
+              <div class="text-base sm:text-lg font-bold text-grey mt-2 truncate">{locName(c.regime.name)}</div>
+              <div class="flex items-center justify-center gap-1.5 sm:gap-2 mt-1.5 flex-wrap">
                 <span class="font-mono text-xs text-grey-dim">{c.countryCode}</span>
                 <span class="text-xs text-grey-dark">{c.regime.currency}</span>
                 {#if c.regime.tax_scheme}
@@ -240,10 +240,10 @@
 
         <!-- Tax Rates section -->
         {#if rateComparison.length > 0}
-          <div class="px-6 pt-5 pb-3">
+          <div class="px-4 sm:px-6 pt-5 pb-3">
             <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">Tax Rates</h4>
           </div>
-          <div class="mx-6 rounded-lg overflow-hidden" style="border: 1px solid #141435;">
+          <div class="mx-4 sm:mx-6 rounded-lg overflow-hidden" style="border: 1px solid #141435;">
             {#each rateComparison as row, i}
               {@const different = row.a !== row.b}
               {@const bothHave = row.a !== '—' && row.b !== '—'}
@@ -256,7 +256,7 @@
                     {row.a}
                   </span>
                 </div>
-                <div class="px-5 text-center min-w-28">
+                <div class="px-2 sm:px-5 text-center min-w-16 sm:min-w-28">
                   <div class="text-[10px] font-mono text-grey-dark">{row.category}</div>
                   <div class="text-xs text-paleblue leading-tight">{row.name}</div>
                 </div>
@@ -272,10 +272,10 @@
 
         <!-- Addons section -->
         {#if addonComparison.length > 0}
-          <div class="px-6 pt-5 pb-3">
+          <div class="px-4 sm:px-6 pt-5 pb-3">
             <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">Addons & Formats</h4>
           </div>
-          <div class="mx-6 rounded-lg overflow-hidden" style="border: 1px solid #141435;">
+          <div class="mx-4 sm:mx-6 rounded-lg overflow-hidden" style="border: 1px solid #141435;">
             {#each addonComparison as addon, i}
               <div
                 class="grid grid-cols-[1fr_auto_1fr] items-center px-4 py-2.5"
@@ -288,7 +288,7 @@
                     <span class="text-grey-dark text-sm">—</span>
                   {/if}
                 </div>
-                <div class="px-5 text-center min-w-36">
+                <div class="px-2 sm:px-5 text-center min-w-20 sm:min-w-36">
                   <div class="text-xs text-paleblue">{addon.name}</div>
                   <span class="text-[10px] font-mono text-grey-dark">{addon.key}</span>
                 </div>
@@ -305,10 +305,10 @@
         {/if}
 
         <!-- General section -->
-        <div class="px-6 pt-5 pb-3">
+        <div class="px-4 sm:px-6 pt-5 pb-3">
           <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">General</h4>
         </div>
-        <div class="mx-6 mb-6 rounded-lg overflow-hidden" style="border: 1px solid #141435;">
+        <div class="mx-4 sm:mx-6 mb-6 rounded-lg overflow-hidden" style="border: 1px solid #141435;">
           {#each generalRows as row, i}
             {@const different = row.a !== row.b}
             <div
@@ -316,7 +316,7 @@
               style="background: {i % 2 === 0 ? '#0c0c28' : '#0a0a24'};"
             >
               <span class="text-sm text-right {different ? 'font-semibold text-grey' : 'text-paleblue'}">{row.a}</span>
-              <span class="px-5 text-xs text-grey-dim text-center min-w-28">{row.label}</span>
+              <span class="px-2 sm:px-5 text-xs text-grey-dim text-center min-w-16 sm:min-w-28">{row.label}</span>
               <span class="text-sm {different ? 'font-semibold text-grey' : 'text-paleblue'}">{row.b}</span>
             </div>
           {/each}

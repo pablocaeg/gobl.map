@@ -4,6 +4,7 @@
   import { regimeData } from '$lib/stores/regimes'
   import { loadRegimes } from '$lib/utils/data-loader'
   import { restoreFromHash } from '$lib/stores/selection'
+  import { topologyData } from '$lib/stores/topology'
   import { pendingRegimes } from '$lib/stores/pending'
   import { fetchPendingRegimes } from '$lib/utils/pending-regimes'
   import { base } from '$app/paths'
@@ -11,13 +12,19 @@
   let { children } = $props()
 
   onMount(async () => {
-    const data = loadRegimes()
-    regimeData.set(data)
+    regimeData.set(loadRegimes())
+
+    const res = await fetch(`${base}/world-110m.json`)
+    const world = await res.json()
+    topologyData.set(world)
+
     restoreFromHash()
 
-    // Fetch open PRs for in-progress regimes (non-blocking)
-    const pending = await fetchPendingRegimes()
-    pendingRegimes.set(pending)
+    // Remove the HTML loader
+    document.getElementById('app-loader')?.remove()
+
+    // Non-blocking: fetch open PRs
+    fetchPendingRegimes().then((p) => pendingRegimes.set(p))
   })
 </script>
 

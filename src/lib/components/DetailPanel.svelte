@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte'
   import { selectedCountry, compareCountry, compareMode } from '$lib/stores/selection'
   import { get } from 'svelte/store'
   import { fly } from 'svelte/transition'
@@ -11,7 +12,8 @@
   import type { CountryData } from '$lib/utils/data-loader'
 
   let country = $state<CountryData | null>(null)
-  selectedCountry.subscribe((v) => (country = v))
+  const unsub = selectedCountry.subscribe((v) => (country = v))
+  onDestroy(unsub)
 
   function close() {
     selectedCountry.set(null)
