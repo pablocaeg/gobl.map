@@ -1,0 +1,14 @@
+{
+  "code": "PA",
+  "name": "Panama",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "Local XML",
+  "infrastructure": null,
+  "model": "Clearance",
+  "authority": "Dirección General de Ingresos (DGI)",
+  "archiving": null,
+  "eSignature": null,
+  "notes": null
+}

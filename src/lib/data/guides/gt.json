@@ -1,0 +1,14 @@
+{
+  "code": "GT",
+  "name": "Guatemala",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "Local XML",
+  "infrastructure": "Certified providers (PAC)",
+  "model": "Clearance",
+  "authority": "Superintendencia de Administración Tributaria (SAT)",
+  "archiving": "4 years",
+  "eSignature": "Mandatory",
+  "notes": null
+}

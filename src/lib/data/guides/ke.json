@@ -1,0 +1,14 @@
+{
+  "code": "KE",
+  "name": "Kenya",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "Local XML",
+  "infrastructure": "TIMS / e-TIMS",
+  "model": "Clearance",
+  "authority": "Kenya Revenue Authority (KRA)",
+  "archiving": "5 years",
+  "eSignature": "Mandatory",
+  "notes": null
+}

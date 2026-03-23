@@ -1,0 +1,14 @@
+{
+  "code": "ZA",
+  "name": "South Africa",
+  "b2g": "mandatory",
+  "b2b": "unknown",
+  "b2c": "unknown",
+  "format": null,
+  "infrastructure": null,
+  "model": null,
+  "authority": "South African Revenue Service (SARS)",
+  "archiving": null,
+  "eSignature": null,
+  "notes": null
+}

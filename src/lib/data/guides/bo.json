@@ -1,0 +1,14 @@
+{
+  "code": "BO",
+  "name": "Bolivia",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "Local XML",
+  "infrastructure": "SIN",
+  "model": "Clearance",
+  "authority": "Servicio de Impuestos Nacionales (SIN)",
+  "archiving": "10 years",
+  "eSignature": "Mandatory",
+  "notes": null
+}

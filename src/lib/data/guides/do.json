@@ -1,0 +1,14 @@
+{
+  "code": "DO",
+  "name": "Dominican Republic",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "e-CF (Local XML)",
+  "infrastructure": "DGII",
+  "model": "Clearance",
+  "authority": "Dirección General de Impuestos Internos (DGII)",
+  "archiving": "10 years",
+  "eSignature": "Mandatory",
+  "notes": "Phased rollout: large companies May 2024, medium May 2025, small May 2026."
+}

@@ -1,0 +1,14 @@
+{
+  "code": "PE",
+  "name": "Peru",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "UBL 2.1",
+  "infrastructure": "SUNAT",
+  "model": "Clearance",
+  "authority": "SUNAT",
+  "archiving": "5 years",
+  "eSignature": "Mandatory",
+  "notes": null
+}

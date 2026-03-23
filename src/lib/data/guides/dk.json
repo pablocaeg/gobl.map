@@ -1,0 +1,14 @@
+{
+  "code": "DK",
+  "name": "Denmark",
+  "b2g": "mandatory",
+  "b2b": "not-required",
+  "b2c": "not-required",
+  "format": "OIOUBL, Peppol BIS",
+  "infrastructure": "NemHandel / Peppol",
+  "model": "Peppol",
+  "authority": "Skattestyrelsen",
+  "archiving": "5 years",
+  "eSignature": "Optional",
+  "notes": null
+}

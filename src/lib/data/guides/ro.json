@@ -1,0 +1,14 @@
+{
+  "code": "RO",
+  "name": "Romania",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "not-required",
+  "format": "RO_CIUS",
+  "infrastructure": "eFactura",
+  "model": "Centralised",
+  "authority": "ANAF",
+  "archiving": "10 years",
+  "eSignature": "Peppol",
+  "notes": "B2B mandatory since July 2024. SAF-T also mandatory."
+}

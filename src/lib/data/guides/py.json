@@ -1,0 +1,14 @@
+{
+  "code": "PY",
+  "name": "Paraguay",
+  "b2g": "mandatory",
+  "b2b": "mandatory",
+  "b2c": "mandatory",
+  "format": "Local XML",
+  "infrastructure": "SIFEN",
+  "model": "Clearance",
+  "authority": "Subsecretaría de Estado de Tributación (SET)",
+  "archiving": "5 years",
+  "eSignature": "Mandatory",
+  "notes": null
+}
