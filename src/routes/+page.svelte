@@ -67,5 +67,8 @@
     </div>
   {/if}
   <DetailPanel />
+  {#if guide}
+    <GuidePanel {guide} onclose={() => selectedGuide.set(null)} />
+  {/if}
   <CompareView />
 </main>
