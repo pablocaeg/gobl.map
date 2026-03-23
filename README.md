@@ -10,28 +10,28 @@ Interactive visual explorer for [GOBL](https://gobl.org)'s tax regime coverage w
 
 ### Views
 
-- **World Map** — interactive map with zoom, pan, and country selection. Colour-coded by region with hatched patterns for pending PRs and countries needing contributions.
-- **Table** — sortable list of all regimes showing standard VAT/GST rates, currencies, addon counts, and e-invoicing compliance status.
-- **Format Matrix** — coverage grid for conversion formats (UBL, CII, FacturaE, CFDI, etc.) across all supported countries.
+- **World Map** - interactive map with zoom, pan, and country selection. Colour-coded by region with hatched patterns for pending PRs and countries needing contributions.
+- **Table** - sortable list of all regimes showing standard VAT/GST rates, currencies, addon counts, and e-invoicing compliance status.
+- **Format Matrix** - coverage grid for conversion formats (UBL, CII, FacturaE, CFDI, etc.) across all supported countries.
 
 ### Detail & Compare
 
-- **Detail Panel** — click any supported country to see its tax categories, current and historical rates, tax identities, correction methods, addons, and links to source code.
-- **Compare Mode** — select two countries and view their tax rates, categories, and addons side by side.
-- **Code Examples** — minimal GOBL invoice JSON per country, ready to copy.
+- **Detail Panel** - click any supported country to see its tax categories, current and historical rates, tax identities, correction methods, addons, and links to source code.
+- **Compare Mode** - select two countries and view their tax rates, categories, and addons side by side.
+- **Code Examples** - minimal GOBL invoice JSON per country, ready to copy.
 
 ### Contribution Guides
 
 - **77 country invoicing guides** covering B2G, B2B, and B2C e-invoicing compliance status (mandatory, upcoming, planned, not required).
-- **Guide Panel** — for countries that need a GOBL regime, shows compliance requirements, technical details (format, infrastructure, authority, archiving, e-signature), and a direct link to contribute on GitHub.
+- **Guide Panel** - for countries that need a GOBL regime, shows compliance requirements, technical details (format, infrastructure, authority, archiving, e-signature), and a direct link to contribute on GitHub.
 
 ### Filters & Navigation
 
-- **Compliance Filters** — highlight countries that need contributions (red) or have open PRs in progress (amber). Clickable from both the top-bar controls and the stats bar counts.
-- **Live PR Detection** — fetches open pull requests from [invopop/gobl](https://github.com/invopop/gobl) to show which regimes are actively being worked on.
-- **Search** — find countries by name instantly.
-- **URL Sharing** — deep-link to any country via URL hash (`#es`, `#de`).
-- **Keyboard** — press `Escape` to close all panels and clear filters.
+- **Compliance Filters** - highlight countries that need contributions (red) or have open PRs in progress (amber). Clickable from both the top-bar controls and the stats bar counts.
+- **Live PR Detection** - fetches open pull requests from [invopop/gobl](https://github.com/invopop/gobl) to show which regimes are actively being worked on.
+- **Search** - find countries by name instantly.
+- **URL Sharing** - deep-link to any country via URL hash (`#es`, `#de`).
+- **Keyboard** - press `Escape` to close all panels and clear filters.
 
 ### Stats Bar
 
