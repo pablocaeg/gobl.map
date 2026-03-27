@@ -151,6 +151,7 @@
       <h4 class="text-[11px] font-semibold text-grey-dim uppercase tracking-wider">
         Playground
       </h4>
+      <span class="text-[9px] text-grey-dark/50 hidden sm:inline">— edit and validate live</span>
       {#if !expanded && result?.ok}
         <span
           class="inline-flex items-center gap-1 text-[9px] font-medium text-green-400 px-1.5 py-0.5 rounded"
