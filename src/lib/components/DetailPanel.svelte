@@ -9,6 +9,7 @@
   import IdentitiesList from './IdentitiesList.svelte'
   import SourceLinks from './SourceLinks.svelte'
   import CodeExample from './CodeExample.svelte'
+  import GoblEditor from './GoblEditor.svelte'
   import type { CountryData } from '$lib/utils/data-loader'
 
   let country = $state<CountryData | null>(null)
@@ -109,6 +110,9 @@
 
         <hr style="border-color: #141435; border-width: 0; border-top-width: 1px;" />
         <CodeExample {country} />
+
+        <hr style="border-color: #141435; border-width: 0; border-top-width: 1px;" />
+        <GoblEditor {country} />
       </div>
     </div>
 
