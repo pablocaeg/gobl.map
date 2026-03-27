@@ -10,7 +10,7 @@
   let result = $state<BuildResult | null>(null)
   let loading = $state(false)
   let showOutput = $state(false)
-  let expanded = $state(false)
+  let expanded = $state(true)
   let textareaEl = $state<HTMLTextAreaElement | null>(null)
   let dirty = $state(false)
   let originalValue = $state('')
