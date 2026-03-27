@@ -11,7 +11,6 @@
   let loading = $state(false)
   let showOutput = $state(false)
   let expanded = $state(true)
-  let textareaEl = $state<HTMLTextAreaElement | null>(null)
   let dirty = $state(false)
   let originalValue = $state('')
 
@@ -64,25 +63,9 @@
     if (!$workerReady) initWorker()
   })
 
-  // Track edits.
   function handleInput() {
     dirty = editorValue !== originalValue
-    result = null
-    autoResize()
   }
-
-  function autoResize() {
-    if (!textareaEl) return
-    textareaEl.style.height = 'auto'
-    textareaEl.style.height = Math.min(textareaEl.scrollHeight, 500) + 'px'
-  }
-
-  // Resize on expand.
-  $effect(() => {
-    if (expanded && textareaEl) {
-      requestAnimationFrame(autoResize)
-    }
-  })
 
   async function handleBuild() {
     loading = true
@@ -100,7 +83,6 @@
     result = null
     showOutput = false
     dirty = false
-    requestAnimationFrame(autoResize)
   }
 
   // Cmd/Ctrl+Enter to build.
@@ -250,15 +232,14 @@
         <!-- Editor area -->
         <div class="relative" style="background: #0a0a20;">
           <textarea
-            bind:this={textareaEl}
             bind:value={editorValue}
             oninput={handleInput}
             onkeydown={(e) => {
               handleKeydown(e)
               handleTab(e)
             }}
-            class="w-full p-3 pl-4 text-xs font-mono text-paleblue leading-relaxed resize-none focus:outline-none"
-            style="background: transparent; border: none; min-height: 180px; max-height: 500px; tab-size: 2;"
+            class="w-full p-3 pl-4 text-xs font-mono text-paleblue leading-relaxed resize-none focus:outline-none overflow-auto"
+            style="background: transparent; border: none; height: 240px; tab-size: 2;"
             spellcheck="false"
             autocomplete="off"
           ></textarea>
