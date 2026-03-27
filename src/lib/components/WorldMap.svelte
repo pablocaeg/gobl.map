@@ -130,7 +130,8 @@
     select(svgEl).call(zoomRef)
 
     select(svgEl).on('dblclick.zoom', () => {
-      select(svgEl).transition().duration(500).call(zoomRef.transform, zoomIdentity)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(select(svgEl) as any).transition().duration(500).call(zoomRef.transform, zoomIdentity)
     })
   })
 
@@ -320,7 +321,8 @@
       const tx = width / 2 - scale * cx
       const ty = height / 2 - scale * cy
 
-      select(svgEl)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(select(svgEl) as any)
         .transition()
         .duration(500)
         .call(zoomRef.transform, zoomIdentity.translate(tx, ty).scale(scale))

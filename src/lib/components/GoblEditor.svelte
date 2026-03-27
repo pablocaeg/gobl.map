@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { CountryData } from '$lib/utils/data-loader'
   import { workerReady, initWorker, buildDocument, type BuildResult } from '$lib/stores/worker'
-  import { locName, currentRate } from '$lib/utils/format'
+  import { locName } from '$lib/utils/format'
   import CopyButton from './CopyButton.svelte'
 
   let { country }: { country: CountryData } = $props()
@@ -11,40 +11,53 @@
   let loading = $state(false)
   let showOutput = $state(false)
 
-  // Generate a starter invoice for this country.
-  function generateStarter(): string {
-    const r = country.regime
-    const cat = r.categories[0]
+  // Pre-generated mock invoices per country (from gobl.mock).
+  const mockCache = new Map<string, string>()
 
-    const example: Record<string, unknown> = {
-      $schema: 'https://gobl.org/draft-0/bill/invoice',
-      currency: r.currency,
-      supplier: {
-        name: 'Test Supplier',
-        tax_id: { country: r.country, code: 'XXXXXXXX' }
-      },
-      customer: {
-        name: 'Test Customer',
-        tax_id: { country: r.country, code: 'YYYYYYYY' }
-      },
-      lines: [
-        {
-          quantity: '1',
-          item: { name: 'Consulting services', price: '100.00' },
-          taxes: [{ cat: cat?.code || 'VAT', rate: 'standard' }]
-        }
-      ]
+  async function loadMockInvoice(code: string): Promise<string> {
+    if (mockCache.has(code)) {
+      return mockCache.get(code)!
     }
-
-    return JSON.stringify(example, null, 2)
+    try {
+      const mod = await import(`$lib/data/examples/${code}.json`)
+      // Extract just the invoice document (not the envelope).
+      const doc = mod.default?.doc || mod.default
+      const json = JSON.stringify(doc, null, 2)
+      mockCache.set(code, json)
+      return json
+    } catch {
+      // Fallback to a basic template if no mock available.
+      const r = country.regime
+      const cat = r.categories[0]
+      const fallback = {
+        $schema: 'https://gobl.org/draft-0/bill/invoice',
+        currency: r.currency,
+        supplier: {
+          name: 'Test Supplier',
+          tax_id: { country: r.country, code: 'XXXXXXXX' }
+        },
+        lines: [
+          {
+            quantity: '1',
+            item: { name: 'Service', price: '100.00' },
+            taxes: [{ cat: cat?.code || 'VAT', rate: 'standard' }]
+          }
+        ]
+      }
+      return JSON.stringify(fallback, null, 2)
+    }
   }
 
-  // Initialize editor with starter code.
+  // Load mock invoice when country changes.
   $effect(() => {
     if (country) {
-      editorValue = generateStarter()
       result = null
       showOutput = false
+      // Map EL -> GR for file lookup.
+      const code = country.regime.country === 'EL' ? 'GR' : country.regime.country
+      loadMockInvoice(code).then((json) => {
+        editorValue = json
+      })
     }
   })
 
@@ -67,9 +80,12 @@
   }
 
   function handleReset() {
-    editorValue = generateStarter()
     result = null
     showOutput = false
+    const code = country.regime.country === 'EL' ? 'GR' : country.regime.country
+    loadMockInvoice(code).then((json) => {
+      editorValue = json
+    })
   }
 
   // Format nested error fields for display.

@@ -169,7 +169,7 @@
       <span class="text-[11px] font-semibold text-grey-dim uppercase tracking-widest"
         >Compare Regimes</span
       >
-      <button onclick={close} class="p-1.5 text-grey-dim hover:text-grey transition-colors">
+      <button onclick={close} class="p-1.5 text-grey-dim hover:text-grey transition-colors" aria-label="Close compare view">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
