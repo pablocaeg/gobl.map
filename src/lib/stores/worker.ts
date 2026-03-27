@@ -20,17 +20,24 @@ export interface BuildResult {
   errorFields?: Record<string, unknown>
 }
 
+// Encode a UTF-8 string to base64. Unlike btoa(), this handles
+// non-Latin1 characters (accented letters, CJK, etc.).
+function toBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str)
+  const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join('')
+  return btoa(binary)
+}
+
 export async function buildDocument(json: string): Promise<BuildResult> {
   try {
     const payload = {
-      data: btoa(json),
+      data: toBase64(json),
       envelop: true
     }
     const result = await gobl.build({ payload, indent: true })
     return { ok: true, output: result }
   } catch (err) {
     const parsed = gobl.parseGOBLError(err)
-    // Try to parse structured validation errors from the message.
     let errorFields: Record<string, unknown> | undefined
     try {
       const obj = JSON.parse(parsed.message)
@@ -51,7 +58,7 @@ export async function buildDocument(json: string): Promise<BuildResult> {
 
 export async function validateDocument(json: string): Promise<BuildResult> {
   try {
-    const payload = { data: btoa(json) }
+    const payload = { data: toBase64(json) }
     const result = await gobl.validate({ payload, indent: true })
     return { ok: true, output: result }
   } catch (err) {
